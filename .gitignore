@@ -15,6 +15,7 @@ build/
 *.key
 *.pem
 update-publisher.der
+!/update-publisher.der
 publisher.der
 *.manifest
 *.sig
