@@ -3,4 +3,4 @@ using System.Runtime.CompilerServices;
 
 [assembly: AssemblyTitle("SARGON Security")]
 [assembly: AssemblyDescription("Bandomasis failų tikrintuvas. Ne visavertės nuolatinės apsaugos produktas.")]
-[assembly: AssemblyVersion("0.52.0.0")]
+[assembly: AssemblyVersion("0.53.0.0")]
