@@ -34,7 +34,9 @@ jobs:
           Add-Content -Path $env:GITHUB_ENV -Value "SARGON_VERSION=$env:SARGON_VERSION"
       - name: Install NSIS and OpenSSL
         shell: pwsh
-        run: choco install nsis openssl --yes --no-progress
+        run: |
+          choco install nsis openssl --yes --no-progress
+          Add-Content -Path $env:GITHUB_PATH -Value "${env:ProgramFiles(x86)}\NSIS"
       - name: Run Windows checks
         shell: cmd
         run: test-windows.cmd
