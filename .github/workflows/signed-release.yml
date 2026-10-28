@@ -3,10 +3,12 @@ name: Signed Windows release
 on:
   pull_request:
   push:
-    branches:
-      - '**'
     tags:
       - 'v[0-9]*'
+
+concurrency:
+  group: sargon-updater-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: write
