@@ -22,9 +22,9 @@ SARGON lange spauskite **„Pereiti nuo McAfee prie Defender“**. Įrankis paro
 
 - Paslauga periodiškai skenuoja pasirinktus vietinius diskus su ClamAV ir po failo pakeitimo atlieka papildomą patikrą. `FileSystemWatcher` veikia po įrašymo, neužblokuoja vykdymo ir neapima laiko, kai paslauga sustabdyta. Eilės perpildymas bei stebėjimo klaidos žymimos kaip aprėpties spragos.
 - ClamAV duomenų bazės parengtis reikalauja neutralaus failo runtime patikros. Tai patvirtina tik variklio veikimą, ne aptikimo efektyvumą.
-- Radiniai pateikiami peržiūrai; prieš karantiną jie tikrinami iš naujo. Paslauga originalų automatiškai netrina. Ankstesnė karantino kopija, atkūrimas į naują kelią, pasirašytų atnaujinimų patikra ir atnaujinimo grąžinimo kelias lieka bandomi komponentai.
+- Radiniai pateikiami peržiūrai; prieš karantiną jie tikrinami iš naujo. Paslauga originalų automatiškai netrina. Ankstesnė karantino kopija, atkūrimas į naują kelią ir pasirašytų atnaujinimų patikra lieka bandomi komponentai; automatinis grąžinimas po dalinio diegimo neįgyvendintas.
 - Nėra AMSI tiekėjo, branduolio minifilter tvarkyklės, failų atidarymo / vykdymo blokavimo, atminties, įkrovos ar procesų elgsenos apsaugos ir Windows Security Center antivirusinio tiekėjo registracijos.
-- Nėra tikro leidėjo sertifikato ar pasirašytos viešos atnaujinimų infrastruktūros. SmartScreen perspėjimo pašalinimas neįmanomas vien sukūrus naują diegiklį; reikia pasirašyto leidimo ir reputacijos.
+- Automatinio atnaujinimo leidėjo raktas ir pasirašyti vieši leidimai dar nesukonfigūruoti. SmartScreen perspėjimo pašalinimas neįmanomas vien sukūrus naują diegiklį; tam reikia Authenticode pasirašymo ir reputacijos.
 
 ## Surinkimas ir bandymai
 
@@ -38,7 +38,7 @@ Prieš platinimą būtini Windows x64 build ir testų rezultatai, realus paslaug
 
 ## Viešas šaltinio veidrodis ir programos atnaujinimai
 
-SARGON klientas tikrina viešą GitHub stabilų leidimą ne dažniau kaip kartą per 24 valandas. Jis priima tik įdiegtame `update-publisher.der` raktu patvirtintą manifestą, atsisiunčia diegiklį į naudotojo profilį, sutikrina manifesto dydį ir SHA-256, o diegimą paleidžia tik naudotojui sutikus. Diegiklis laukia, kol SARGON užsidarys, ir po diegimo programą paleidžia iš naujo. Šis leidimo parašas patvirtina failo kilmę ir vientisumą; tai nėra Authenticode parašas ar antivirusinis patikrinimas.
+SARGON klientas tikrina viešą GitHub stabilų leidimą ne dažniau kaip kartą per 24 valandas. Jis priima tik įdiegtame `update-publisher.der` raktu patvirtintą manifestą, atsisiunčia diegiklį į naudotojo profilį, sutikrina manifesto dydį ir SHA-256, foninis tikrinimas naujesnį patvirtintą leidimą atsisiunčia ir tyliai įdiegia automatiškai; rankinis patikrinimas vis tiek prašo sutikimo. Diegiklis laukia, kol SARGON užsidarys, ir po diegimo programą paleidžia iš naujo. Šis leidimo parašas patvirtina failo kilmę ir vientisumą; tai nėra Authenticode parašas ar antivirusinis patikrinimas.
 
 Automatinis atnaujinimas dar **neįjungtas šiame viešame leidime**: saugykloje nėra leidėjo viešojo rakto, GitHub Actions paslapčių, stabilaus GitHub Release ar Windows aplinkoje išbandyto diegiklio. Jis saugiai lieka išjungtas, kol savininkas paruoš raktus ir patikrins leidimo grandinę. Niekada neįkelkite privataus rakto į saugyklą.
 
