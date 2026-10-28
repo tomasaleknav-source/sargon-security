@@ -4,7 +4,7 @@ Unicode true
 !include "WinVer.nsh"
 !include "FileFunc.nsh"
 !ifndef APP_VERSION
-!define APP_VERSION "0.52"
+!define APP_VERSION "0.53"
 !endif
 Name "SARGON Security ${APP_VERSION}"
 OutFile "SARGON_Security_PC_Setup.exe"
