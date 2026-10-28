@@ -25,6 +25,7 @@ namespace SargasPC
 		public int SelfVersion;
 
 		public long LocalEngineCheckAt;
+        public long LastAppUpdateCheckUtcTicks;
         public long EngineDetectionAt;
         public bool AutoDbUpdate,AutoDetectionControl,RestoreWatch,SavedWatchEnabled,SavedAutoQuarantine;
         public string SavedWatchDirectory="";
