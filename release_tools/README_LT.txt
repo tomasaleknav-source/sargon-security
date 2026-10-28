@@ -1,17 +1,21 @@
-SARGON PROGRAMOS ATNAUJINIMU PARUOSIMAS - BANDOMOJI DALIS
+SARGON PROGRAMOS ATNAUJINIMAI
 
-Sis paketas dar NEIJUNGIA automatinio programos atnaujinimo. Pridetas
-leidimo manifesto kurimo irankis, suderinamas su esama UpdateGate patikra.
-Jis pasiraso versija, failo dydi ir SHA-256 suma, bet nieko nepublikuoja,
-neatsisiuncia ir neįdiegia. Privataus rakto i ZIP ar serveri nedekite.
+Automatinio leidimo eiga aprašyta saugyklos README_LT.md ir vykdoma
+.github/workflows/signed-release.yml. Klientas tikrina viešą GitHub Release,
+patikrina RSA/SHA-256 parašą ir diegiklio dydį bei SHA-256, tada prieš
+diegimą prašo naudotojo sutikimo.
 
-Irankis tik bandomasis: jis skaito neuzsifruota RSA privatu rakta ir netinka
-tikram leidybos raktui saugoti. Gamybai reikia apsaugoto rakto ir saugios,
-nepriklausomai patikrintos pasirasymo infrastruktūros.
+Leidimo pasirašymo raktas turi būti RSA 2048–8192 bitų ir užšifruotas.
+Viešąjį SubjectPublicKeyInfo DER failą `update-publisher.der` galima laikyti
+saugykloje. Privataus rakto niekada nedėkite į ZIP, Git ar GitHub failus.
+GitHub Actions naudoja paslaptis SARGON_UPDATE_PRIVATE_KEY_B64 ir
+SARGON_UPDATE_PRIVATE_KEY_PASSWORD. Privačiojo rakto bazė64 kodavimas nėra
+šifravimas; saugokite patį privatų raktą užšifruotą stipriu slaptažodžiu.
 
-Dar reikia patikimo HTTPS serverio, patvirtinto leidejo viešojo rakto,
-automatinio kliento, saugaus diegimo, atkurimo po klaidu ir Windows bandymu.
-Dabartine antivirusine apsauga turi likti ijungta.
+Manifesto kūrimo įrankiui reikia Python 3, OpenSSL ir šių aplinkos kintamųjų:
+  SARGON_UPDATE_PRIVATE_KEY_PASSWORD
 
-Bandomajam naudojimui reikalingas Python 3, OpenSSL ir atskiras TESTINIS
-RSA raktas. Pagalba: python create_update_manifest.py --help
+Įrankis pasirašo leidimo versiją, galiojimo laiką, failo dydį ir SHA-256.
+Jis pats nieko nepublikuoja ir neįdiegia. Tik Windows workflow sukuria
+GitHub Release. Prieš platinimą būtini Windows bandymai; dalinio diegimo
+atkūrimas dar neįgyvendintas.
