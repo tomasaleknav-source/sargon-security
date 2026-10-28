@@ -4,7 +4,7 @@ using SargasPC;
 class RealtimeMonitorTests {
  static int n;static void C(bool b){if(!b)throw new Exception("realtime monitor check "+n);n++;}
  static void Main(){string root=Path.Combine(Path.GetTempPath(),"sargon-realtime-"+Guid.NewGuid().ToString("N"));string nested=Path.Combine(root,"nested"),excluded=Path.Combine(root,"private"),outside=Path.Combine(Path.GetTempPath(),"sargon-outside-"+Guid.NewGuid().ToString("N")+".dat");Directory.CreateDirectory(nested);Directory.CreateDirectory(excluded);long now=DateTime.UtcNow.Ticks;try{
-  using(var m=new RealtimeChangeMonitor(new[]{root},new[]{excluded},false,2,4)){
+  using(var m=new RealtimeChangeMonitor(new[]{root},new[]{excluded},false,1,4)){
    string first=Path.Combine(nested,"first.bin"),second=Path.Combine(nested,"second.bin"),third=Path.Combine(nested,"third.bin");
    m.Enqueue(Path.Combine(excluded,"private.bin"),now-TimeSpan.FromSeconds(10).Ticks);m.Enqueue(outside,now-TimeSpan.FromSeconds(10).Ticks);C(m.PendingCount==0&&!m.CoverageLost);
    m.Enqueue(first,now-TimeSpan.FromSeconds(6).Ticks);m.Enqueue(first,now-TimeSpan.FromSeconds(5).Ticks);C(m.PendingCount==1);C(m.Take(now)==first);
