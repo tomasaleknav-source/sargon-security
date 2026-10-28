@@ -1,1 +1,1 @@
-namespace SargasPC {public static class ReleaseIdentity {public const int Version=49;}}
+namespace SargasPC {public static class ReleaseIdentity {public const int Version=50;}}
