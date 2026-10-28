@@ -42,12 +42,13 @@ SARGON klientas tikrina viešą GitHub stabilų leidimą ne dažniau kaip kartą
 
 Automatinis atnaujinimas dar **neįjungtas šiame viešame leidime**: saugykloje nėra leidėjo viešojo rakto, GitHub Actions paslapčių, stabilaus GitHub Release ar Windows aplinkoje išbandyto diegiklio. Jis saugiai lieka išjungtas, kol savininkas paruoš raktus ir patikrins leidimo grandinę. Niekada neįkelkite privataus rakto į saugyklą.
 
-Leidimo parengimas savininkui:
+Leidimo parengimas savininkui (Windows komandas vykdykite aplanke už saugyklos ribų):
 
-1. Sukurkite RSA 3072 bitų užšifruotą privatų raktą saugioje vietoje ir išveskite atitinkamą viešąjį DER raktą (`SubjectPublicKeyInfo`). Įkelkite tik viešą `update-publisher.der` į saugyklos šaknį.
-2. GitHub saugyklos **Settings → Secrets and variables → Actions** pridėkite `SARGON_UPDATE_PRIVATE_KEY_B64` (užšifruoto PEM rakto Base64) ir `SARGON_UPDATE_PRIVATE_KEY_PASSWORD` (jo slaptažodis). Nenaudokite bandomojo ar kitur viešinto rakto.
-3. Windows CI patikrins versiją, paleis testus, surinks NSIS diegiklį, pasirašys manifestą ir paskelbs `v<ReleaseIdentity.Version>` žymos GitHub Release. Raktų ir Windows bandymų neparuošus, leidimas nepaskelbiamas.
-4. Prieš tikrą platinimą patikrinkite atnaujinimą atskiroje Windows bandomojoje mašinoje, įskaitant netinkamą parašą, nutrūkusį atsisiuntimą, atšaukimą ir ankstesnės versijos atkūrimą. Dabartinis diegiklis neturi automatinio atkūrimo po dalinio diegimo.
+1. Su OpenSSL sukurkite RSA 3072 bitų užšifruotą privatų raktą ir išveskite viešąjį DER raktą: `openssl genpkey -algorithm RSA -aes-256-cbc -pkeyopt rsa_keygen_bits:3072 -out update-private.pem`, tada `openssl pkey -in update-private.pem -pubout -outform DER -out update-publisher.der`. OpenSSL paprašys privataus rakto slaptažodžio. Įkelkite tik viešą `update-publisher.der` į saugyklos šaknį.
+2. Base64 užkoduokite užšifruotą PEM failą komandų lange ir nukopijuokite į GitHub paslaptį: `[Convert]::ToBase64String([IO.File]::ReadAllBytes('update-private.pem')) | Set-Clipboard`.
+3. GitHub saugyklos **Settings → Secrets and variables → Actions** pridėkite `SARGON_UPDATE_PRIVATE_KEY_B64` (iškarpinėje esantį Base64) ir `SARGON_UPDATE_PRIVATE_KEY_PASSWORD` (rakto slaptažodis). Nenaudokite bandomojo ar kitur viešinto rakto.
+4. Windows CI patikrins versiją, paleis testus, surinks NSIS diegiklį, pasirašys manifestą ir paskelbs `v<ReleaseIdentity.Version>` žymos GitHub Release. Raktų ir Windows bandymų neparuošus, leidimas nepaskelbiamas.
+5. Prieš tikrą platinimą patikrinkite atnaujinimą atskiroje Windows bandomojoje mašinoje, įskaitant netinkamą parašą, nutrūkusį atsisiuntimą, atšaukimą ir ankstesnės versijos atkūrimą. Dabartinis diegiklis neturi automatinio atkūrimo po dalinio diegimo.
 
 `release_tools/create_update_manifest.py` dabar reikalauja užšifruoto RSA rakto ir `SARGON_UPDATE_PRIVATE_KEY_PASSWORD` aplinkos kintamojo. Jis pasirašo tik manifesto metaduomenis; Windows diegimą atlieka SARGON klientas po parašo ir SHA-256 patikros.
 
