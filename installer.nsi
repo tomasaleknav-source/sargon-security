@@ -1,4 +1,4 @@
-﻿Unicode true
+Unicode true
 !include "MUI2.nsh"
 !include "LogicLib.nsh"
 !include "WinVer.nsh"
@@ -78,6 +78,7 @@ Function .onInstSuccess
  ${If} $SARGONUpdateInstall == "1"
   ExecShell "open" "$INSTDIR\TelefonoSargasPC.exe"
  ${EndIf}
+ System::Call 'shell32::SHChangeNotify(i 0x08000000, i 0, p 0, p 0)'
 FunctionEnd
 Section "SARGON Security" Main
  SectionIn RO
@@ -195,7 +196,3 @@ Section "Uninstall"
  DeleteRegKey HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\TelefonoSargasPC"
  MessageBox MB_OK "Programa pašalinta. Jūsų duomenys ir šifruotos kopijos liko: $LOCALAPPDATA\TelefonoSargasPC. Nenaikinkite jų, kol neatkūrėte reikalingų kopijų."
 SectionEnd
-
-Function .onInstSuccess
- System::Call 'shell32::SHChangeNotify(i 0x08000000, i 0, p 0, p 0)'
-FunctionEnd
