@@ -18,6 +18,7 @@ update-publisher.der
 !/update-publisher.der
 publisher.der
 *.manifest
+!/app.manifest
 *.sig
 
 # Test output / local IDE state
