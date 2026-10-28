@@ -1374,7 +1374,7 @@ namespace SargasPC
                         if (interactive) MessageBox.Show(this, "Naujesnio stabilaus SARGON leidimo nėra.", "SARGON naujinimas");
                         return;
                     }
-                    if (!Confirm("Rastas pasirašytas SARGON naujinimas", "Nauja versija: " + release.Offer.Version + "\r\n\r\nSARGON atsisiųs diegiklį iš oficialios GitHub saugyklos, patikrins parašą, dydį ir SHA-256, tada uždarys programą ir paleis diegimą. Diegiklis nėra Authenticode pasirašytas. Tęsti?")) return;
+                    if (!Confirm("Rastas pasirašytas SARGON naujinimas", "Nauja versija: " + release.Offer.Version + "\r\n\r\nSARGON atsisiųs Windows programos diegiklį iš oficialios GitHub saugyklos, patikrins parašą, dydį ir SHA-256, tada uždarys programą ir paleis diegimą. Windows paleisties pasirinkimas išliks. Bendros Windows paslaugos atnaujinamos atskirai. Diegiklis nėra Authenticode pasirašytas. Tęsti?")) return;
                     status.Text = "Atsisiunčiamas ir tikrinamas pasirašytas naujinimas…";
                     Task.Run(delegate
                     {
