@@ -1,6 +1,6 @@
-# SARGON Security 0.49 — Windows bandomasis šaltinis
+# SARGON Security 0.50 — Windows bandomasis šaltinis
 
-**Tai šaltinio kandidatas, ne paruoštas diegiklis.** Šiame pakete nėra sukompiliuoto 0.49 `.exe`; Windows surinkimas, diegimas ir priėmimo bandymai šiame vykdymo kompiuteryje neatlikti. Nemokamas pagrindinis McAfee antivirusinės pakaitalas yra Windows integruotas Microsoft Defender. Šis SARGON leidimas jį valdo ir tikrina jo būseną; SARGON pats nėra antiviruso variklis. ClamAV yra tik papildoma failų patikra.
+**Tai šaltinio kandidatas, ne paruoštas diegiklis.** Šiame pakete nėra sukompiliuoto 0.50 `.exe`; GitHub Actions Windows CI patvirtino programos ir diegiklio surinkimą bei host logikos testus, tačiau diegimas ir native Windows priėmimo bandymai dar neatlikti. Nemokamas pagrindinis McAfee antivirusinės pakaitalas yra Windows integruotas Microsoft Defender. Šis SARGON leidimas jį valdo ir tikrina jo būseną; SARGON pats nėra antiviruso variklis. ClamAV yra tik papildoma failų patikra.
 
 Greitam Windows bandymui ZIP faile taip pat yra `Paleisti_SARGON_Defender.cmd` ir `SARGON_Defender_Valdymas.ps1`. Išskleiskite paketą į aplanką ir dukart spustelėkite `.cmd` paleidimo failą. Šis atskiras valdymo langas nenaudoja kompiliuoto C# kliento; Windows Defender lieka tikruoju varikliu.
 
@@ -32,7 +32,7 @@ Surinkimui reikia Windows x64, .NET Framework 4.8 kūrimo įrankių / suderinamo
 
 0.49 Windows surinkimo pataisos: paslaugos ir diegiklio projektams aiškiai pridėta `System.Web.Extensions` nuoroda; `System.TimeoutException` pilnai kvalifikuota, kad Windows SDK kompiliatorius išvengtų dviprasmio tipo vardo.
 
-Šiame vykdymo kompiuteryje nebuvo C# kompiliatoriaus, Windows aplinkos ar NSIS. Todėl kodas nekompiliuotas, testai nevykdyti ir 0.49 diegiklis nesukurtas. Atliktos tik šaltinio statinės patikros; rezultatai pateikti `tests/QA_049.json`.
+0.50 programos ir diegiklio surinkimą bei host logikos testus tikrina GitHub Actions Windows CI. Native Windows priėmimo bandymai vis dar reikalingi. 0.49 istorinio kandidato statinės patikros pateiktos `tests/QA_049.json`.
 
 Prieš platinimą būtini Windows x64 build ir testų rezultatai, realus paslaugos / UAC / diegiklio priėmimas, failų apimties ir klaidingų perspėjimų matavimai, saugus leidėjo pasirašymas ir nepriklausomas aptikimo efektyvumo įvertinimas. Iki tol SARGON netinka naudoti kaip vienintelė antivirusinė.
 
