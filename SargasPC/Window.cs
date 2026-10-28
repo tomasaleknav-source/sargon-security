@@ -422,7 +422,7 @@ namespace SargasPC
 					}
 				}
 			}
-			Text = "SARGON Security 0.49 — bandomoji";
+			Text = "SARGON Security 0.52 — bandomoji";
 			base.Width = 1160;
 			base.Height = 790;
 			MinimumSize = new Size(930, 650);
@@ -447,7 +447,7 @@ namespace SargasPC
 			Label control = new Label
 			{
 				Dock = DockStyle.Fill,
-				Text = "◈  SARGON Security\r\n0.49 • Defender valdymas • ClamAV papildomai",
+				Text = "◈  SARGON Security\r\n0.52 • Defender valdymas • ClamAV papildomai",
 				Font = new Font("Segoe UI", 17f, FontStyle.Bold),
 				ForeColor = Accent,
 				Padding = new Padding(5)
