@@ -1,0 +1,26 @@
+# Build outputs
+bin/
+obj/
+build/
+*.exe
+*.dll
+*.pdb
+*.msi
+*.nupkg
+*.snupkg
+
+# Per-machine state, keys, signatures, and generated release files
+*.pfx
+*.p12
+*.key
+*.pem
+update-publisher.der
+publisher.der
+*.manifest
+*.sig
+
+# Test output / local IDE state
+*.log
+.vs/
+__pycache__/
+*.py[cod]
