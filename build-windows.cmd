@@ -1,7 +1,7 @@
 @echo off
 setlocal
 cd /d "%~dp0"
-if "%SARGON_VERSION%"=="" set "SARGON_VERSION=0.49"
+if "%SARGON_VERSION%"=="" set "SARGON_VERSION=0.50"
 dotnet build TelefonoSargasPC.csproj -c Release
 if errorlevel 1 exit /b 1
 dotnet build Service\SargonService.csproj -c Release
