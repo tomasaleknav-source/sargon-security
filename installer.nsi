@@ -106,14 +106,14 @@ Section "SARGON Security" Main
  CreateShortcut "$SMPROGRAMS\SARGON Security\SARGON Security.lnk" "$INSTDIR\TelefonoSargasPC.exe" "" "$INSTDIR\shield.ico" 0
  CreateShortcut "$SMPROGRAMS\SARGON Security\Pašalinti.lnk" "$INSTDIR\Pasalinti.exe"
  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\TelefonoSargasPC" "DisplayName" "SARGON Security (bandomoji)"
- WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\TelefonoSargasPC" "DisplayVersion" "0.49"
+ WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\TelefonoSargasPC" "DisplayVersion" "${APP_VERSION}"
  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\TelefonoSargasPC" "DisplayIcon" "$INSTDIR\shield.ico"
  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\TelefonoSargasPC" "UninstallString" '$\"$INSTDIR\Pasalinti.exe$\"'
  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\TelefonoSargasPC" "InstallLocation" "$INSTDIR"
  WriteRegDWORD HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\TelefonoSargasPC" "NoModify" 1
  WriteRegDWORD HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\TelefonoSargasPC" "NoRepair" 1
 SectionEnd
-Section "Paleisti prisijungus prie Windows (foninis režimas)"
+Section /o "Paleisti prisijungus prie Windows (foninis režimas)"
  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Run" "SARGON Security" '$\"$INSTDIR\TelefonoSargasPC.exe$\" --startup'
 SectionEnd
 Section /o "Paslauga ir bendras ClamAV (bandomoji, reikia administratoriaus)" Service
