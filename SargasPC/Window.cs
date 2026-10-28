@@ -790,7 +790,7 @@ namespace SargasPC
 			};
 			automationTimer.Tick+=delegate{ServiceStatusTick();HealthTick();AutomationTick();};
             InitializeReliability();InitializeTray();
-			appUpdateTimer.Tick += delegate { appUpdateTimer.Stop(); CheckAppUpdate(interactive: false); };
+            appUpdateTimer.Tick += delegate { appUpdateTimer.Stop(); CheckAppUpdate(interactive: false); appUpdateTimer.Interval = (int)TimeSpan.FromHours(24).TotalMilliseconds; appUpdateTimer.Start(); };
 			base.Shown+=delegate{ApplyBackgroundLaunch();RestoreSavedMonitor();automationTimer.Start();ServiceStatusTick();HealthTick();AutomationTick();appUpdateTimer.Start();};
             base.FormClosed += delegate
 			{
