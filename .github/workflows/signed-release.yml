@@ -1,0 +1,76 @@
+name: Signed Windows release
+
+on:
+  pull_request:
+  push:
+    tags:
+      - 'v[0-9]*'
+
+concurrency:
+  group: sargon-updater-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Derive package version and validate tag
+        shell: pwsh
+        run: |
+          $versionText = (Select-String -Path 'SargasPC/ReleaseIdentity.cs' -Pattern 'Version=(\d+)' ).Matches[0].Groups[1].Value
+          if ($env:GITHUB_REF.StartsWith('refs/tags/') -and $env:GITHUB_REF_NAME -ne "v$versionText") { throw "Tag must be v$versionText to match ReleaseIdentity.Version=$versionText" }
+          $number = [int]$versionText
+          $env:SARGON_VERSION = ('{0}.{1:D2}' -f [math]::Floor($number / 100), ($number % 100))
+          Add-Content -Path $env:GITHUB_ENV -Value "SARGON_VERSION=$env:SARGON_VERSION"
+      - name: Install NSIS and OpenSSL
+        shell: pwsh
+        run: |
+          choco install nsis openssl --yes --no-progress
+          Add-Content -Path $env:GITHUB_PATH -Value "${env:ProgramFiles(x86)}\NSIS"
+      - name: Run Windows checks
+        shell: cmd
+        run: test-windows.cmd
+      - name: Build installer
+        shell: cmd
+        run: build-windows.cmd
+      - name: Validate signing configuration
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        env:
+          SARGON_UPDATE_PRIVATE_KEY_B64: ${{ secrets.SARGON_UPDATE_PRIVATE_KEY_B64 }}
+          SARGON_UPDATE_PRIVATE_KEY_PASSWORD: ${{ secrets.SARGON_UPDATE_PRIVATE_KEY_PASSWORD }}
+        run: |
+          if (-not (Test-Path 'update-publisher.der')) { throw 'Commit the matching public update-publisher.der before creating a release tag.' }
+          if ([string]::IsNullOrWhiteSpace($env:SARGON_UPDATE_PRIVATE_KEY_B64) -or [string]::IsNullOrWhiteSpace($env:SARGON_UPDATE_PRIVATE_KEY_PASSWORD)) { throw 'Configure encrypted-key and passphrase repository secrets before creating a release.' }
+          $keyPath = Join-Path $env:RUNNER_TEMP 'sargon-update-private.pem'
+          [IO.File]::WriteAllBytes($keyPath, [Convert]::FromBase64String($env:SARGON_UPDATE_PRIVATE_KEY_B64))
+          $publicPath = Join-Path $env:RUNNER_TEMP 'sargon-update-public.der'
+          openssl pkey -in $keyPath -passin env:SARGON_UPDATE_PRIVATE_KEY_PASSWORD -pubout -outform DER -out $publicPath
+          if ($LASTEXITCODE -ne 0) { throw 'Could not derive the public key from the encrypted release key.' }
+          $committedKeyHash = (Get-FileHash 'update-publisher.der' -Algorithm SHA256).Hash
+          $derivedKeyHash = (Get-FileHash $publicPath -Algorithm SHA256).Hash
+          if ($committedKeyHash -ne $derivedKeyHash) { throw 'The encrypted private signing key does not match the committed public update-publisher.der.' }
+          Add-Content -Path $env:GITHUB_ENV -Value "SARGON_SIGNING_KEY=$keyPath"
+      - name: Sign release manifest
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        env:
+          SARGON_UPDATE_PRIVATE_KEY_PASSWORD: ${{ secrets.SARGON_UPDATE_PRIVATE_KEY_PASSWORD }}
+        run: |
+          python release_tools/create_update_manifest.py --installer SARGON_Security_PC_Setup.exe --private-key "$env:SARGON_SIGNING_KEY" --version $((Select-String -Path 'SargasPC/ReleaseIdentity.cs' -Pattern 'Version=(\d+)').Matches[0].Groups[1].Value) --output sargon-update.manifest
+      - name: Publish GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create $env:GITHUB_REF_NAME SARGON_Security_PC_Setup.exe sargon-update.manifest --title "SARGON $env:GITHUB_REF_NAME" --notes "Windows installer. The updater verifies the signed manifest and installer SHA-256 before asking to install."

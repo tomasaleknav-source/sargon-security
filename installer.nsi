@@ -1,20 +1,25 @@
-﻿Unicode true
+Unicode true
 !include "MUI2.nsh"
 !include "LogicLib.nsh"
 !include "WinVer.nsh"
-Name "SARGON Security 0.49 (bandomoji)"
-OutFile "../SARGON_Security_PC_v0.49_Diegimas.exe"
+!include "FileFunc.nsh"
+!ifndef APP_VERSION
+!define APP_VERSION "0.50"
+!endif
+Name "SARGON Security ${APP_VERSION}"
+OutFile "SARGON_Security_PC_Setup.exe"
 InstallDir "$LOCALAPPDATA\Programs\TelefonoSargasPC"
 RequestExecutionLevel user
 SetCompressor /SOLID lzma
 Icon "SargasPC.Shield.ico"
 UninstallIcon "SargasPC.Shield.ico"
-VIProductVersion "0.49.0.0"
+VIProductVersion "${APP_VERSION}.0.0"
 VIAddVersionKey "ProductName" "SARGON Security"
 VIAddVersionKey "FileDescription" "Bandomosios Windows programos diegiklis"
-VIAddVersionKey "FileVersion" "0.49.0.0"
+VIAddVersionKey "FileVersion" "${APP_VERSION}.0.0"
 VIAddVersionKey "LegalCopyright" "Telefono sargas contributors 2026"
 !define MUI_ABORTWARNING
+Var SARGONUpdateInstall
 !define MUI_FINISHPAGE_RUN "$INSTDIR\TelefonoSargasPC.exe"
 !insertmacro MUI_PAGE_WELCOME
 !insertmacro MUI_PAGE_LICENSE "LICENCIJA_IR_RIBOS.txt"
@@ -25,6 +30,12 @@ VIAddVersionKey "LegalCopyright" "Telefono sargas contributors 2026"
 !insertmacro MUI_UNPAGE_INSTFILES
 !insertmacro MUI_LANGUAGE "Lithuanian"
 Function .onInit
+ StrCpy $SARGONUpdateInstall "0"
+ ${GetParameters} $R0
+ ClearErrors
+ ${GetOptions} $R0 "/SARGON-UPDATE" $R1
+ IfErrors +2
+ StrCpy $SARGONUpdateInstall "1"
  ${IfNot} ${AtLeastWin10}
   MessageBox MB_OK|MB_ICONSTOP "Reikia Windows 10 / 11 ir .NET Framework 4.8."
   Abort
@@ -38,10 +49,36 @@ Function .onInit
  ${EndIf}
  System::Call 'kernel32::OpenMutex(i 0x100000, i 0, t "Local\SargasPC_v1") p.r0'
  ${If} $0 != 0
+  ${If} $SARGONUpdateInstall == "1"
+   StrCpy $R2 0
+  sargon_update_wait:
+   System::Call 'kernel32::OpenMutex(i 0x100000, i 0, t "Local\SargasPC_v1") p.r0'
+   ${If} $0 == 0
+    Goto sargon_update_ready
+   ${EndIf}
+   System::Call 'kernel32::CloseHandle(p r0)'
+   ${If} $R2 >= 60
+    Goto sargon_update_busy
+   ${EndIf}
+   Sleep 500
+   IntOp $R2 $R2 + 1
+   Goto sargon_update_wait
+  sargon_update_busy:
+   MessageBox MB_OK|MB_ICONSTOP "SARGON dar neužsidarė. Atnaujinimas sustabdytas; paleiskite diegiklį vėliau."
+   Abort
+  sargon_update_ready:
+  ${Else}
   System::Call 'kernel32::CloseHandle(p r0)'
   MessageBox MB_OK|MB_ICONSTOP "Pirmiausia uždarykite veikiančią SARGON Security programą."
   Abort
+  ${EndIf}
  ${EndIf}
+FunctionEnd
+Function .onInstSuccess
+ ${If} $SARGONUpdateInstall == "1"
+  ExecShell "open" "$INSTDIR\TelefonoSargasPC.exe"
+ ${EndIf}
+ System::Call 'shell32::SHChangeNotify(i 0x08000000, i 0, p 0, p 0)'
 FunctionEnd
 Section "SARGON Security" Main
  SectionIn RO
@@ -58,8 +95,8 @@ Section "SARGON Security" Main
  !if /FileExists "src/publisher.der"
  File "src/publisher.der"
  !endif
- !if /FileExists "src/update-publisher.der"
- File "src/update-publisher.der"
+ !if /FileExists "update-publisher.der"
+ File "update-publisher.der"
  !endif
  File "SARGON_Defender_Valdymas.ps1"
  File "Paleisti_SARGON_Defender.cmd"
@@ -70,14 +107,14 @@ Section "SARGON Security" Main
  CreateShortcut "$SMPROGRAMS\SARGON Security\SARGON Security.lnk" "$INSTDIR\TelefonoSargasPC.exe" "" "$INSTDIR\shield.ico" 0
  CreateShortcut "$SMPROGRAMS\SARGON Security\Pašalinti.lnk" "$INSTDIR\Pasalinti.exe"
  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\TelefonoSargasPC" "DisplayName" "SARGON Security (bandomoji)"
- WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\TelefonoSargasPC" "DisplayVersion" "0.49"
+ WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\TelefonoSargasPC" "DisplayVersion" "${APP_VERSION}"
  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\TelefonoSargasPC" "DisplayIcon" "$INSTDIR\shield.ico"
  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\TelefonoSargasPC" "UninstallString" '$\"$INSTDIR\Pasalinti.exe$\"'
  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\TelefonoSargasPC" "InstallLocation" "$INSTDIR"
  WriteRegDWORD HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\TelefonoSargasPC" "NoModify" 1
  WriteRegDWORD HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\TelefonoSargasPC" "NoRepair" 1
 SectionEnd
-Section "Paleisti prisijungus prie Windows (foninis režimas)"
+Section /o "Paleisti prisijungus prie Windows (foninis režimas)"
  WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Run" "SARGON Security" '$\"$INSTDIR\TelefonoSargasPC.exe$\" --startup'
 SectionEnd
 Section /o "Paslauga ir bendras ClamAV (bandomoji, reikia administratoriaus)" Service
@@ -159,7 +196,3 @@ Section "Uninstall"
  DeleteRegKey HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\TelefonoSargasPC"
  MessageBox MB_OK "Programa pašalinta. Jūsų duomenys ir šifruotos kopijos liko: $LOCALAPPDATA\TelefonoSargasPC. Nenaikinkite jų, kol neatkūrėte reikalingų kopijų."
 SectionEnd
-
-Function .onInstSuccess
- System::Call 'shell32::SHChangeNotify(i 0x08000000, i 0, p 0, p 0)'
-FunctionEnd

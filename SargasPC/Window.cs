@@ -4,9 +4,11 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -361,6 +363,8 @@ namespace SargasPC
 		private bool monitorLocalEngine;
         private bool monitorAutoQuarantine;
         private readonly System.Windows.Forms.Timer automationTimer=new System.Windows.Forms.Timer{Interval=30000};
+        private readonly System.Windows.Forms.Timer appUpdateTimer=new System.Windows.Forms.Timer{Interval=60000};
+        private bool appUpdateCheckRunning;
         private string monitoredDirectory="";
 
 		private long nextMonitorAt;
@@ -569,6 +573,7 @@ namespace SargasPC
 			Add(panel, "Tikrinti nuorodą vietoje…", UrlDialog);
 			Add(panel, "Importuoti domenų sąrašą…", ImportDomains);
 			Add(panel, "Pasirašyto atnaujinimo patikra…", VerifyUpdate);
+			Add(panel, "Tikrinti SARGON programos naujinimus…", delegate { CheckAppUpdate(interactive: true); });
 			Add(panel, "Importuoti pasirašytą bazę…", delegate
 			{
 				if (!File.Exists(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "publisher.der")))
@@ -785,10 +790,11 @@ namespace SargasPC
 			};
 			automationTimer.Tick+=delegate{ServiceStatusTick();HealthTick();AutomationTick();};
             InitializeReliability();InitializeTray();
-            base.Shown+=delegate{ApplyBackgroundLaunch();RestoreSavedMonitor();automationTimer.Start();ServiceStatusTick();HealthTick();AutomationTick();};
+            appUpdateTimer.Tick += delegate { appUpdateTimer.Stop(); CheckAppUpdate(interactive: false); appUpdateTimer.Interval = (int)TimeSpan.FromHours(24).TotalMilliseconds; appUpdateTimer.Start(); };
+			base.Shown+=delegate{ApplyBackgroundLaunch();RestoreSavedMonitor();automationTimer.Start();ServiceStatusTick();HealthTick();AutomationTick();appUpdateTimer.Start();};
             base.FormClosed += delegate
 			{
-                DisposeTray();automationTimer.Stop();automationTimer.Dispose();
+                DisposeTray();automationTimer.Stop();automationTimer.Dispose();appUpdateTimer.Stop();appUpdateTimer.Dispose();
 				StopMonitor();
 				watchTimer.Dispose();
 			};
@@ -1321,6 +1327,85 @@ namespace SargasPC
 				return "Leidėjo parašas, versija, galiojimas ir pasirinkto EXE dydis / SHA-256 sutapo. Versija: " + updateOffer.Version + ". Failas automatiškai NEPALEISTAS. Tai nėra Authenticode, antivirusinio variklio ar Windows diegimo patikra.";
 			});
 		}
+
+        private void CheckAppUpdate(bool interactive)
+        {
+            string keyPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "update-publisher.der");
+            if (!File.Exists(keyPath))
+            {
+                if (interactive) MessageBox.Show(this, "Programos naujinimų parašo raktas šiame leidime nesukonfigūruotas. Automatinis naujinimas lieka išjungtas, kol savininko viešasis raktas įdedamas į diegiklį.", "Naujinimai nesukonfigūruoti");
+                return;
+            }
+            long nowTicks = DateTime.UtcNow.Ticks;
+            if (!interactive && core.Config.LastAppUpdateCheckUtcTicks > 0 && nowTicks >= core.Config.LastAppUpdateCheckUtcTicks && nowTicks - core.Config.LastAppUpdateCheckUtcTicks < TimeSpan.FromHours(24).Ticks) return;
+            if (appUpdateCheckRunning) return;
+            appUpdateCheckRunning = true;
+            if (interactive) status.Text = "Tikrinamas pasirašytas SARGON leidimas…";
+            Task.Run(delegate
+            {
+                try
+                {
+                    byte[] publisher;
+                    using (FileStream input = File.OpenRead(keyPath)) publisher = Data.Bounded(input, 4096, delegate { });
+                    long unixNow = (long)(DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalMilliseconds;
+                    ReleaseUpdate release = ReleaseUpdateClient.CheckLatest(publisher, ReleaseIdentity.Version, unixNow, delegate { });
+                    return Tuple.Create(release, publisher, (Exception)null);
+                }
+                catch (Exception error) when (error is IOException || error is UnauthorizedAccessException || error is WebException || error is CryptographicException || error is FormatException || error is InvalidOperationException)
+                {
+                    return Tuple.Create((ReleaseUpdate)null, (byte[])null, error);
+                }
+            }).ContinueWith(delegate(Task<Tuple<ReleaseUpdate, byte[], Exception>> task)
+            {
+                if (IsDisposed || !IsHandleCreated) return;
+                BeginInvoke((Action)delegate
+                {
+                    appUpdateCheckRunning = false;
+                    core.Config.LastAppUpdateCheckUtcTicks = DateTime.UtcNow.Ticks;
+                    try { core.SaveSettings(); } catch (Exception error) when (error is IOException || error is UnauthorizedAccessException) { }
+                    if (task.IsFaulted || task.Result.Item3 != null)
+                    {
+                        if (interactive) MessageBox.Show(this, "Naujinimo patikra nepavyko. Nieko neatsisiųsta ir neįdiegta.\r\n" + Data.Clean(task.IsFaulted ? task.Exception.GetBaseException().Message : task.Result.Item3.Message), "SARGON naujinimas");
+                        return;
+                    }
+                    ReleaseUpdate release = task.Result.Item1;
+                    if (release == null || release.Offer == null)
+                    {
+                        if (interactive) MessageBox.Show(this, "Naujesnio stabilaus SARGON leidimo nėra.", "SARGON naujinimas");
+                        return;
+                    }
+                    if (interactive && !Confirm("Rastas pasirašytas SARGON naujinimas", "Nauja versija: " + release.Offer.Version + "\r\n\r\nSARGON atsisiųs Windows programos diegiklį iš oficialios GitHub saugyklos, patikrins leidėjo parašą, dydį ir SHA-256, tada uždarys programą ir paleis tylų diegimą. Windows paleisties pasirinkimas išliks. Bendros Windows paslaugos atnaujinamos atskirai. Diegiklis nėra Authenticode pasirašytas. Tęsti?")) return;
+                    status.Text = "Atsisiunčiamas ir tikrinamas pasirašytas naujinimas…";
+                    Task.Run(delegate
+                    {
+                        string root = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "TelefonoSargasPC", "Updates");
+                        return ReleaseUpdateClient.DownloadVerified(release, task.Result.Item2, root, delegate { });
+                    }).ContinueWith(delegate(Task<string> download)
+                    {
+                        if (IsDisposed || !IsHandleCreated) return;
+                        BeginInvoke((Action)delegate
+                        {
+                            if (download.IsFaulted)
+                            {
+                                MessageBox.Show(this, "Naujinio atsisiuntimas ar SHA-256 patikra nepavyko. Diegiklis nepaleistas.\r\n" + Data.Clean(download.Exception.GetBaseException().Message), "SARGON naujinimas");
+                                return;
+                            }
+                            try
+                            {
+                                Process.Start(new ProcessStartInfo(download.Result, "/S /SARGON-UPDATE") { UseShellExecute = true });
+                                exitRequested = true;
+                                Close();
+                            }
+                            catch (Exception error) when (error is IOException || error is UnauthorizedAccessException || error is System.ComponentModel.Win32Exception)
+                            {
+                                exitRequested = false;
+                                MessageBox.Show(this, "Patikrintas naujinys išsaugotas, bet diegiklio paleisti nepavyko: " + Data.Clean(error.Message), "SARGON naujinimas");
+                            }
+                        });
+                    });
+                });
+            });
+        }
 
 		private void StopMonitor(bool disableSaved = false)
 		{

@@ -36,14 +36,17 @@ def main():
                 break
             digest.update(block)
     # Fail closed unless OpenSSL identifies a private RSA key of the required size.
-    info = subprocess.run(['openssl', 'rsa', '-in', str(args.private_key), '-text', '-noout', '-check', '-passin', 'pass:'], input=b'\n', capture_output=True, check=True).stdout.decode('ascii', 'strict')
+    pass_source = 'env:SARGON_UPDATE_PRIVATE_KEY_PASSWORD'
+    if not os.environ.get('SARGON_UPDATE_PRIVATE_KEY_PASSWORD'):
+        raise ValueError('Set SARGON_UPDATE_PRIVATE_KEY_PASSWORD; encrypted signing keys are required')
+    info = subprocess.run(['openssl', 'rsa', '-in', str(args.private_key), '-text', '-noout', '-check', '-passin', pass_source], capture_output=True, check=True).stdout.decode('ascii', 'strict')
     import re
     match = re.search(r'Private-Key: \((\d+) bit', info)
     if not match or not 2048 <= int(match.group(1)) <= 8192:
         raise ValueError('RSA private key must be 2048–8192 bits')
     expires = int(time.time() * 1000) + args.valid_days * 86400000
     payload = ('platform=windows\nversion=%d\nexpires=%d\nbytes=%d\nsha256=%s\n' % (args.version, expires, size, digest.hexdigest())).encode('ascii')
-    signature = subprocess.run(['openssl', 'dgst', '-sha256', '-sign', str(args.private_key), '-passin', 'pass:'], input=payload, capture_output=True, check=True).stdout
+    signature = subprocess.run(['openssl', 'dgst', '-sha256', '-sign', str(args.private_key), '-passin', pass_source], input=payload, capture_output=True, check=True).stdout
     envelope = b'SARGAS-UPDATE-1\n' + base64.b64encode(signature) + b'\n' + payload
     if len(envelope) > 4096:
         raise ValueError('Signed envelope exceeds the supported limit')

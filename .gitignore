@@ -15,8 +15,11 @@ build/
 *.key
 *.pem
 update-publisher.der
+!/update-publisher.der
 publisher.der
 *.manifest
+!/app.manifest
+!/Service/setup.manifest
 *.sig
 
 # Test output / local IDE state
