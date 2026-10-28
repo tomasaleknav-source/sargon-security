@@ -1,0 +1,5 @@
+using System;using System.IO;using System.Linq;
+namespace SargasPC {public static class SetupPackagePolicy {
+ public static bool ValidRequest(string id){Guid value;return id!=null&&id.Length<=38&&Guid.TryParse(id,out value);}
+ public static ServiceRelease Verify(string directory,int floor,string pin,bool beta){FolderMonitor.NoLinks(directory);string path=Path.Combine(directory,"release.json");FolderMonitor.NoLinks(path);var m=Data.Read<ServiceRelease>(path,65536);ServiceRelease.Canonical(m);if(m.Version<floor)throw new IOException("Senesnis leidimas atmestas.");foreach(string n in new[]{"SARGON.Service.exe","TelefonoSargasPC.exe","SARGON.CaseReview.exe","SARGON.Setup.exe","initial.hdb"})if(!m.Files.Any(x=>x.Name==n))throw new IOException("Trūksta paketo dalies: "+n);if(!string.IsNullOrEmpty(pin))ServiceRelease.Verify(directory,pin,floor);else{if(!beta)throw new IOException("Nėra patikimo leidėjo parašo. Nepasirašytą bandomąją laidą būtina pasirinkti aiškiai.");ServiceRelease.VerifyFiles(directory,m);}return m;}
+ }}

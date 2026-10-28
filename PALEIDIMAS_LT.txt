@@ -1,0 +1,12 @@
+SARGON Security — Defender valdymas
+
+Paleidimas: dukart spustelėkite Paleisti_SARGON_Defender.cmd.
+Reikia Windows 10 arba Windows 11. Programa naudoja Windows PowerShell ir integruotą Microsoft Defender modulį.
+
+Programoje galima nuskaityti Defender būseną, prašyti apsaugos bazių atnaujinimo, paleisti greitąją / viso kompiuterio / pasirinkto failo patikrą ir parodyti naujausią grėsmių istoriją.
+
+Microsoft Defender yra apsaugos variklis. SARGON jo neįjungia/išjungia, nekeičia išimčių ir neapeina Windows saugos. Jei veiksmas nepavyksta dėl teisių, paleiskite Windows saugą ir patikrinkite apsaugos būseną.
+
+ClamAV papildomas mygtukas veikia tik jei SARGON ClamAV variklis įdiegtas aplanke C:\Program Files\SARGONService\engine\clamav-1.4.6.win.x64, o bazės yra C:\ProgramData\SARGONService\Databases. Jis automatiškai failo netrina.
+
+Tai Defender valdymo programa, o ne naujas savarankiškas antiviruso variklis. Aptikimus ir karantiną vykdo Microsoft Defender; galutinius radinius tikrinkite Windows saugos apsaugos istorijoje.

@@ -1,0 +1,2 @@
+using System;using System.IO;using SargasPC;
+class PackagePolicyCheck {static void Main(string[] args){var m=SetupPackagePolicy.Verify(args[0],49,null,true);if(m.Version!=49)throw new Exception("actual package version");bool rejected=false;try{SetupPackagePolicy.Verify(args[0],49,null,false);}catch(IOException){rejected=true;}if(!rejected)throw new Exception("unsigned production package accepted");Console.WriteLine("PASS: actual 0.49 package, all manifest digests and required tools; unsigned production mode rejected.");}}

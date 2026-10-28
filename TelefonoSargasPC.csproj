@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+  <PropertyGroup>
+    <AssemblyName>TelefonoSargasPC</AssemblyName>
+    <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <OutputType>WinExe</OutputType>
+    <UseWindowsForms>True</UseWindowsForms>
+    <TargetFramework>net48</TargetFramework>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>12</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>app.ico</ApplicationIcon>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <RootNamespace />
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="tests/**/*.cs;build/**/*.cs;Service/**/*.cs;bin/**/*.cs;obj/**/*.cs" />
+    <None Remove="SargasPC.Shield.ico" />
+    <None Remove="Sargon.EngineSetup.ps1" />
+    <EmbeddedResource Include="SargasPC.Shield.ico" LogicalName="SargasPC.Shield.ico" />
+    <EmbeddedResource Include="Sargon.EngineSetup.ps1" LogicalName="Sargon.EngineSetup.ps1" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.Core">
+    </Reference>
+    <Reference Include="System.Web.Extensions">
+    </Reference>
+    <Reference Include="System.Security">
+    </Reference>
+  </ItemGroup>
+</Project>

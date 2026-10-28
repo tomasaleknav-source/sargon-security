@@ -1,0 +1,12 @@
+﻿SARGON: BENDRAS DIEGIKLIO ŠALTINIŲ PAKETAS (BANDOMASIS)
+
+Šiame ZIP nėra paruošto .exe diegiklio. Norint jį sukurti reikia Windows 10/11, suderinamo .NET SDK, .NET Framework 4.8 kūrimo įrankių ir NSIS.
+
+1. Išarchyvuokite ZIP į naują aplanką.
+2. Atverkite SARGON_049 ir paleiskite SURINKTI_DIEGIKLI.cmd.
+3. Jei surinkimas sėkmingas, SARGON_Security_PC_v0.49_Diegimas.exe bus vienu aplanku aukščiau.
+4. Diegiklis įtrauks programą ir Defender valdymo langą. Pagrindiniame lange pasirinkite Windows saugumas ir Defender > Atverti saugumo valdymo langą.
+
+Paslaugos ir bendro ClamAV diegimas yra pasirenkamas, bandomasis ir reikalauja administratoriaus patvirtinimo. ClamAV variklis ir bazės turi būti tinkamai įdiegtos bei patikrintos. SARGON nėra savarankiška realaus laiko antivirusinė. Prieš atsisakydami kitos antivirusinės įsitikinkite, kad Windows saugoje įjungta Defender apsauga.
+
+Windows surinkimas, diegiklis, pašalinimas, Defender ir ClamAV šiame darbo kompiuteryje NEIŠBANDYTI. Tikrinti tik bandomajame Windows kompiuteryje; diegiklis nepasirašytas.

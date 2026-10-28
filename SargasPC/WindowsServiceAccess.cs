@@ -1,0 +1,22 @@
+using System;using System.IO;using System.Runtime.InteropServices;using Microsoft.Win32;
+namespace SargasPC {
+ public static class WindowsServiceAccess {
+  [StructLayout(LayoutKind.Sequential)]struct Status{public uint Type,Current,Accepted,Exit,Specific,Checkpoint,Wait,Pid,Flags;}
+  [DllImport("advapi32.dll",CharSet=CharSet.Unicode,SetLastError=true)]static extern IntPtr OpenSCManager(string machine,string db,uint access);
+  [DllImport("advapi32.dll",CharSet=CharSet.Unicode,SetLastError=true)]static extern IntPtr OpenService(IntPtr manager,string name,uint access);
+  [DllImport("advapi32.dll",SetLastError=true)]static extern bool QueryServiceStatusEx(IntPtr service,int level,out Status status,int length,out int needed);
+  [DllImport("advapi32.dll")]static extern bool CloseServiceHandle(IntPtr handle);
+  public static bool? Running(){if(Environment.OSVersion.Platform!=PlatformID.Win32NT)return null;IntPtr manager=OpenSCManager(null,null,1);if(manager==IntPtr.Zero)return null;try{IntPtr service=OpenService(manager,"SARGONProtection",4);if(service==IntPtr.Zero)return Marshal.GetLastWin32Error()==1060?(bool?)false:null;try{Status s;int need;return QueryServiceStatusEx(service,0,out s,Marshal.SizeOf(typeof(Status)),out need)?s.Current==4:(bool?)null;}finally{CloseServiceHandle(service);}}finally{CloseServiceHandle(manager);}}
+  public static string InstalledTool(string name,int minimumVersion=0){if(name!="SARGON.CaseReview.exe"&&name!="SARGON.Setup.exe")throw new IOException("Neatpažintas įrankis.");if(Environment.OSVersion.Platform!=PlatformID.Win32NT)throw new IOException("Reikia Windows.");string dir;using(var key=RegistryKey.OpenBaseKey(RegistryHive.LocalMachine,RegistryView.Registry64).OpenSubKey("Software\\SARGONService"))dir=key==null?null:key.GetValue("CurrentDirectory") as string;string root=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),"SARGONService","versions")+Path.DirectorySeparatorChar;if(dir==null||!Path.GetFullPath(dir).StartsWith(root,StringComparison.OrdinalIgnoreCase))throw new IOException("Administratoriaus įdiegtas įrankis nerastas. Paleiskite vientisą diegiklį.");FolderMonitor.NoLinks(dir);var release=Data.Read<ServiceRelease>(Path.Combine(dir,"release.json"),65536);if(release.Version<minimumVersion)throw new IOException("Atnaujinkite ir bendro diegiklio paslaugos dalį.");ServiceRelease.VerifyFiles(dir,release);string target=Path.Combine(dir,name);FolderMonitor.NoLinks(target);if(!File.Exists(target))throw new IOException("Įrankio failo nėra.");return target;}
+ }
+ public static class ReadinessSummary {
+  public static string Assess(ServiceHeartbeat s,bool? running,long now){bool fresh=ServiceHeartbeat.Fresh(s,now);return "BENDRA PARENGTIES PATIKRA (ne saugumo garantija)\r\n"+
+   "Windows paslauga: "+(running==true?"SCM praneša: veikia":running==false?"neveikia arba neįdiegta":"SCM būsena nepatvirtinta")+"\r\n"+
+   "Veiklos signalas: "+(fresh?"naujas; "+s.State:"pasenęs arba neperskaitytas")+"\r\n"+(fresh?UpdateRequestPolicy.Explain(s.State)+"\r\n":"")+
+   "Variklio failų vientisumas: "+(fresh&&s.EngineReady?"patikrintas paslaugos paleidimo metu":"nepatvirtintas")+"\r\n"+
+   (fresh?"Rankinis atnaujinimas: "+(s.ManualResult??"neužsakytas")+"\r\n":"")+"ClamAV DB įkėlimo ir neutralaus failo runtime patikra: "+(fresh&&s.DatabaseReady&&s.DatabaseProbeAt>0&&s.DatabaseProbeAt<=now&&now-s.DatabaseProbeAt<TimeSpan.FromHours(24).Ticks?"praėjo "+new DateTime(s.DatabaseProbeAt,DateTimeKind.Utc).ToLocalTime().ToString("g")+" (tai ne aptikimo efektyvumo įrodymas)":"nepatvirtinta arba senesnė nei 24 h")+"\r\n"+
+   "Bazių atnaujinimas ir neutrali kontrolė per 48 h: "+(fresh&&s.DatabaseUpdatedAt>0&&s.DatabaseUpdatedAt<=now&&now-s.DatabaseUpdatedAt<TimeSpan.FromHours(48).Ticks?"patvirtinti istorijoje":"nepatvirtinti")+"\r\n"+
+   "Failų pokyčių stebėjimas pasirinktose šaknyse: "+(fresh&&s.RealtimeReady?"aktyvus; tikrina po įrašymo":"nepatvirtintas / aprėptyje spragų")+"; įvykių spragų: "+(fresh?s.RealtimeDropped:0)+"; eilėje: "+(fresh?s.RealtimePending:0)+"\r\n"+
+   (fresh?PcScanPolicy.Summary(s)+"\r\nSpragų: "+s.Unverified+"; istorinių radinių įrašų: "+s.RecordedCases+"; ankstesnių patikrų panaudojimų šiame procese: "+s.CacheHits:"Patikrų apimtis nepatvirtinta.")+"\r\n\r\nPristabdyta paslauga šiuo metu netikrina naujo aplanko. Failai prieš vykdymą neblokuojami. Programos ir paslaugos Windows priėmimo bandymai šioje laidoje dar nepatvirtinti.";}
+ }
+}
