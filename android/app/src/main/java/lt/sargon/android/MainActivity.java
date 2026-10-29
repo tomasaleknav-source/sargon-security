@@ -96,13 +96,13 @@ public final class MainActivity extends Activity {
         if (request != PICK_FILE || resultCode != RESULT_OK || data == null || data.getData() == null) return;
         Uri uri = data.getData();
         String name = displayName(uri);
+        String expected = expectedHash.getText().toString();
         result.setText("Skaičiuojama: " + name + "…");
         worker.execute(() -> {
             String message;
             try {
                 InputStream stream = getContentResolver().openInputStream(uri);
                 String hash = FileFingerprint.sha256(stream);
-                String expected = expectedHash.getText().toString();
                 if (expected.trim().isEmpty()) {
                     message = "Failas: " + name + "\nSHA-256: " + hash + "\n\nTai kontrolinis kodas, ne virusų patikros rezultatas.";
                 } else if (FileFingerprint.matches(expected, hash)) {
