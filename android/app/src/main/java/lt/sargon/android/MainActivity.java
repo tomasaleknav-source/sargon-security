@@ -61,7 +61,7 @@ public final class MainActivity extends Activity {
         buildProtectionCard(page);
         buildDeviceStatus(page);
         buildFileTools(page);
-        TextView footer = label("SARGON Android 0.52.1  •  Pagalbinė programėlė", 11, false, 0xff71849a);
+        TextView footer = label("SARGON Android 0.52.4  •  Pagalbinė programėlė", 11, false, 0xff71849a);
         footer.setGravity(Gravity.CENTER);
         footer.setPadding(0, dp(24), 0, 0);
         page.addView(footer);
