@@ -61,7 +61,7 @@ public final class MainActivity extends Activity {
         buildProtectionCard(page);
         buildDeviceStatus(page);
         buildFileTools(page);
-        TextView footer = label("SARGON Android 0.52.4  •  Pagalbinė programėlė", 11, false, 0xff71849a);
+        TextView footer = label("SARGON Android 0.52.5 PREVIEW  •  Pagalbinė programėlė", 11, false, 0xff71849a);
         footer.setGravity(Gravity.CENTER);
         footer.setPadding(0, dp(24), 0, 0);
         page.addView(footer);
@@ -81,7 +81,7 @@ public final class MainActivity extends Activity {
         name.addView(label("SARGON", 17, true, WHITE));
         name.addView(label("SECURITY", 10, true, BLUE));
         row.addView(name, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
-        TextView tag = label("ANDROID", 10, true, BLUE);
+        TextView tag = label("PREVIEW 0.52.5", 10, true, BLUE);
         tag.setGravity(Gravity.CENTER);
         tag.setPadding(dp(11), dp(8), dp(11), dp(8));
         tag.setBackground(round(0xff123653, 20));
@@ -374,17 +374,36 @@ public final class MainActivity extends Activity {
             float cx = w * .5f, cy = h * .52f;
             float baseRadius = Math.min(w, h) * .43f;
 
-            // A gentle halo and breathing ring make the shield visibly alive.
+            // Clearly visible blue breathing halo and moving ring accents.
             paint.setStyle(android.graphics.Paint.Style.FILL);
             paint.setColor(accent);
-            paint.setAlpha(24 + (int) (22 * (1f - phase)));
-            canvas.drawCircle(cx, cy, baseRadius * (.78f + .12f * phase), paint);
+            paint.setAlpha(35 + (int) (75 * (1f - phase)));
+            canvas.drawCircle(cx, cy, baseRadius * (0.86f + 0.18f * phase), paint);
+
             paint.setStyle(android.graphics.Paint.Style.STROKE);
-            paint.setStrokeWidth(dp(2) + dp(2) * phase);
-            paint.setAlpha(70 + (int) (100 * (1f - phase)));
-            canvas.drawCircle(cx, cy, baseRadius * (.82f + .12f * phase), paint);
+            paint.setStrokeWidth(dp(2));
+            paint.setAlpha(185);
+            canvas.drawCircle(cx, cy, baseRadius * (0.80f + 0.08f * phase), paint);
+
+            android.graphics.RectF orbit = new android.graphics.RectF(
+                    cx - baseRadius, cy - baseRadius, cx + baseRadius, cy + baseRadius);
+            paint.setStrokeWidth(dp(4));
+            paint.setStrokeCap(android.graphics.Paint.Cap.ROUND);
             paint.setAlpha(255);
+            float angle = phase * 360f;
+            canvas.drawArc(orbit, angle, 92f, false, paint);
+            canvas.drawArc(orbit, angle + 180f, 46f, false, paint);
+
+            double radians = Math.toRadians(angle);
+            float dotX = cx + (float) Math.cos(radians) * baseRadius;
+            float dotY = cy + (float) Math.sin(radians) * baseRadius;
             paint.setStyle(android.graphics.Paint.Style.FILL);
+            canvas.drawCircle(dotX, dotY, dp(4), paint);
+
+            canvas.save();
+            float shieldScale = 0.94f + 0.12f * phase;
+            canvas.scale(shieldScale, shieldScale, cx, cy);
+            paint.setAlpha(255);
 
             android.graphics.Path shield = new android.graphics.Path();
             shield.moveTo(w * .5f, h * .05f);
@@ -416,6 +435,7 @@ public final class MainActivity extends Activity {
                 canvas.drawPath(mark, paint);
             }
             paint.setStyle(android.graphics.Paint.Style.FILL);
+            canvas.restore();
         }
     }
 
