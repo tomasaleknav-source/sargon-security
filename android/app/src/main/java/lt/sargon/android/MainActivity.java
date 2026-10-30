@@ -34,6 +34,7 @@ public final class MainActivity extends Activity {
     private static final int MUTED = 0xffaab9c9;
     private final ExecutorService worker = Executors.newSingleThreadExecutor();
     private TextView result;
+    private ShieldBadge shieldBadge;
     private EditText expectedHash;
 
     @Override public void onCreate(Bundle state) {
@@ -96,7 +97,8 @@ public final class MainActivity extends Activity {
 
         LinearLayout top = new LinearLayout(this);
         top.setGravity(Gravity.CENTER_VERTICAL);
-        ShieldBadge badge = new ShieldBadge();
+        shieldBadge = new ShieldBadge();
+        ShieldBadge badge = shieldBadge;
         top.addView(badge, new LinearLayout.LayoutParams(dp(64), dp(72)));
         LinearLayout copy = new LinearLayout(this);
         copy.setOrientation(LinearLayout.VERTICAL);
@@ -266,6 +268,7 @@ public final class MainActivity extends Activity {
         super.onActivityResult(request, resultCode, data);
         if (request != PICK_FILE || resultCode != RESULT_OK || data == null || data.getData() == null) return;
         Uri uri = data.getData();
+        shieldBadge.setState(ShieldBadge.CHECKING);
         String name = displayName(uri);
         String expected = expectedHash.getText().toString();
         result.setTextColor(BLUE);
@@ -273,26 +276,36 @@ public final class MainActivity extends Activity {
         worker.execute(() -> {
             String message;
             int messageColor;
+            int visualState;
             try {
                 InputStream stream = getContentResolver().openInputStream(uri);
                 String hash = FileFingerprint.sha256(stream);
                 if (expected.trim().isEmpty()) {
                     message = "FAILAS: " + name + "\n\nSHA-256:\n" + hash + "\n\nTai nėra virusų patikros rezultatas.";
                     messageColor = BLUE;
+                    visualState = ShieldBadge.IDLE;
                 } else if (FileFingerprint.matches(expected, hash)) {
                     message = "KODAI SUTAMPA\n" + name + "\n\nSHA-256:\n" + hash + "\n\nSutapimas nepatvirtina failo saugumo.";
                     messageColor = 0xff39d98a;
+                    visualState = ShieldBadge.MATCH;
                 } else {
                     message = "KODAI NESUTAMPA\n" + name + "\n\nSHA-256:\n" + hash + "\n\nPatikrinkite kontrolinį kodą patikimame šaltinyje.";
                     messageColor = 0xffff5964;
+                    visualState = ShieldBadge.MISMATCH;
                 }
             } catch (Exception ex) {
                 message = "Failo kontrolinio kodo apskaičiuoti nepavyko. Failas nebuvo patikrintas.";
                 messageColor = 0xffff5964;
+                visualState = ShieldBadge.MISMATCH;
             }
             final String text = message;
             final int color = messageColor;
-            runOnUiThread(() -> { result.setTextColor(color); result.setText(text); });
+            final int animationState = visualState;
+            runOnUiThread(() -> {
+                result.setTextColor(color);
+                result.setText(text);
+                shieldBadge.setState(animationState);
+            });
         });
     }
 
@@ -314,12 +327,65 @@ public final class MainActivity extends Activity {
     private int dp(int value) { return (int) (value * getResources().getDisplayMetrics().density + 0.5f); }
 
     private final class ShieldBadge extends View {
+        static final int IDLE = 0;
+        static final int CHECKING = 1;
+        static final int MATCH = 2;
+        static final int MISMATCH = 3;
         private final android.graphics.Paint paint = new android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG);
+        private android.animation.ValueAnimator pulse;
+        private float phase;
+        private int state = IDLE;
+
         ShieldBadge() { super(MainActivity.this); }
+
+        void setState(int next) {
+            state = next;
+            if (pulse != null) {
+                pulse.setDuration(state == CHECKING ? 620 : 1180);
+            }
+            invalidate();
+        }
+
+        @Override protected void onAttachedToWindow() {
+            super.onAttachedToWindow();
+            if (pulse == null) {
+                pulse = android.animation.ValueAnimator.ofFloat(0f, 1f);
+                pulse.setDuration(1180);
+                pulse.setRepeatMode(android.animation.ValueAnimator.REVERSE);
+                pulse.setRepeatCount(android.animation.ValueAnimator.INFINITE);
+                pulse.setInterpolator(new android.view.animation.AccelerateDecelerateInterpolator());
+                pulse.addUpdateListener(a -> {
+                    phase = (float) a.getAnimatedValue();
+                    invalidate();
+                });
+            }
+            if (!pulse.isStarted()) pulse.start();
+        }
+
+        @Override protected void onDetachedFromWindow() {
+            if (pulse != null) pulse.cancel();
+            super.onDetachedFromWindow();
+        }
+
         @Override protected void onDraw(android.graphics.Canvas canvas) {
             super.onDraw(canvas);
             float w = getWidth(), h = getHeight();
-            paint.setColor(0xff55b7ff);
+            int accent = state == MATCH ? 0xff39d98a : state == MISMATCH ? 0xffff5964 : 0xff55b7ff;
+            float cx = w * .5f, cy = h * .52f;
+            float baseRadius = Math.min(w, h) * .43f;
+
+            // A gentle halo and breathing ring make the shield visibly alive.
+            paint.setStyle(android.graphics.Paint.Style.FILL);
+            paint.setColor(accent);
+            paint.setAlpha(24 + (int) (22 * (1f - phase)));
+            canvas.drawCircle(cx, cy, baseRadius * (.78f + .12f * phase), paint);
+            paint.setStyle(android.graphics.Paint.Style.STROKE);
+            paint.setStrokeWidth(dp(2) + dp(2) * phase);
+            paint.setAlpha(70 + (int) (100 * (1f - phase)));
+            canvas.drawCircle(cx, cy, baseRadius * (.82f + .12f * phase), paint);
+            paint.setAlpha(255);
+            paint.setStyle(android.graphics.Paint.Style.FILL);
+
             android.graphics.Path shield = new android.graphics.Path();
             shield.moveTo(w * .5f, h * .05f);
             shield.lineTo(w * .91f, h * .20f);
@@ -328,17 +394,27 @@ public final class MainActivity extends Activity {
             shield.quadTo(w * .21f, h * .82f, w * .15f, h * .62f);
             shield.lineTo(w * .09f, h * .20f);
             shield.close();
+            paint.setColor(accent);
             canvas.drawPath(shield, paint);
+
             paint.setColor(Color.WHITE);
             paint.setStrokeWidth(dp(4));
             paint.setStrokeCap(android.graphics.Paint.Cap.ROUND);
             paint.setStrokeJoin(android.graphics.Paint.Join.ROUND);
             paint.setStyle(android.graphics.Paint.Style.STROKE);
-            android.graphics.Path check = new android.graphics.Path();
-            check.moveTo(w * .32f, h * .51f);
-            check.lineTo(w * .45f, h * .64f);
-            check.lineTo(w * .70f, h * .38f);
-            canvas.drawPath(check, paint);
+            android.graphics.Path mark = new android.graphics.Path();
+            if (state == MISMATCH) {
+                mark.moveTo(w * .5f, h * .33f);
+                mark.lineTo(w * .5f, h * .56f);
+                canvas.drawPath(mark, paint);
+                paint.setStyle(android.graphics.Paint.Style.FILL);
+                canvas.drawCircle(w * .5f, h * .69f, dp(2.3f), paint);
+            } else {
+                mark.moveTo(w * .32f, h * .51f);
+                mark.lineTo(w * .45f, h * .64f);
+                mark.lineTo(w * .70f, h * .38f);
+                canvas.drawPath(mark, paint);
+            }
             paint.setStyle(android.graphics.Paint.Style.FILL);
         }
     }
