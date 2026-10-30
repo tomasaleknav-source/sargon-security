@@ -3,7 +3,6 @@ package lt.sargon.android;
 import android.app.Activity;
 import android.app.KeyguardManager;
 import android.content.Intent;
-import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
@@ -27,13 +26,12 @@ import java.util.concurrent.Executors;
 
 public final class MainActivity extends Activity {
     private static final int PICK_FILE = 520;
-    private static final int BG = 0xff081421;
-    private static final int CARD = 0xff112236;
-    private static final int CARD_LIGHT = 0xff172c42;
-    private static final int TEAL = 0xff53e0c2;
-    private static final int MUTED = 0xffaebdcd;
-    private static final int WHITE = 0xfff4f8fc;
-    private static final int BLUE = 0xff1674a4;
+    private static final int BG = 0xff07111f;
+    private static final int CARD = 0xff101f32;
+    private static final int CARD2 = 0xff142942;
+    private static final int TEAL = 0xff59e3c3;
+    private static final int WHITE = 0xfff5f8fc;
+    private static final int MUTED = 0xffaab9c9;
     private final ExecutorService worker = Executors.newSingleThreadExecutor();
     private TextView result;
     private EditText expectedHash;
@@ -46,116 +44,215 @@ public final class MainActivity extends Activity {
 
         LinearLayout page = new LinearLayout(this);
         page.setOrientation(LinearLayout.VERTICAL);
-        page.setPadding(dp(20), dp(18), dp(20), dp(28));
+        page.setPadding(dp(18), dp(14), dp(18), dp(30));
         page.setBackgroundColor(BG);
 
         ScrollView scroll = new ScrollView(this);
         scroll.setFillViewport(true);
-        scroll.setBackgroundColor(BG);
         scroll.addView(page);
 
-        LinearLayout brandRow = new LinearLayout(this);
-        brandRow.setGravity(Gravity.CENTER_VERTICAL);
-        TextView mark = label("S", 20, true, BG);
-        mark.setGravity(Gravity.CENTER);
-        mark.setBackground(round(TEAL, 16));
-        brandRow.addView(mark, new LinearLayout.LayoutParams(dp(42), dp(42)));
-        LinearLayout brandText = new LinearLayout(this);
-        brandText.setOrientation(LinearLayout.VERTICAL);
-        brandText.setPadding(dp(11), 0, 0, 0);
-        brandText.addView(label("SARGON", 17, true, WHITE));
-        brandText.addView(label("SECURITY", 10, true, TEAL));
-        brandRow.addView(brandText, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
-        TextView preview = label("ANDROID • 0.52", 10, true, TEAL);
-        preview.setGravity(Gravity.CENTER);
-        preview.setPadding(dp(10), dp(8), dp(10), dp(8));
-        preview.setBackground(round(0xff123a3e, 18));
-        brandRow.addView(preview);
-        page.addView(brandRow);
+        buildTopBar(page);
+        TextView title = label("Apsaugos centras", 28, true, WHITE);
+        title.setPadding(0, dp(23), 0, dp(3));
+        page.addView(title);
+        page.addView(label("Telefono būklė ir papildomi įrankiai", 14, false, MUTED));
 
-        TextView heading = label("Apsaugos skydelis", 28, true, WHITE);
-        heading.setPadding(0, dp(25), 0, dp(3));
-        page.addView(heading);
-        page.addView(label("Telefono saugos informacija ir failo kontrolė", 14, false, MUTED));
+        buildProtectionCard(page);
+        buildDeviceStatus(page);
+        buildFileTools(page);
+        TextView footer = label("SARGON Android 0.52.1  •  Pagalbinė programėlė", 11, false, 0xff71849a);
+        footer.setGravity(Gravity.CENTER);
+        footer.setPadding(0, dp(24), 0, 0);
+        page.addView(footer);
+        setContentView(scroll);
+    }
 
-        LinearLayout hero = card();
-        hero.setOrientation(LinearLayout.HORIZONTAL);
-        hero.setGravity(Gravity.CENTER_VERTICAL);
-        hero.setPadding(dp(16), dp(16), dp(16), dp(16));
-        hero.setBackground(round(0xff12334a, 18));
-        TextView shield = label("✓", 27, true, BG);
-        shield.setGravity(Gravity.CENTER);
-        shield.setBackground(round(TEAL, 40));
-        hero.addView(shield, new LinearLayout.LayoutParams(dp(54), dp(54)));
-        LinearLayout heroText = new LinearLayout(this);
-        heroText.setOrientation(LinearLayout.VERTICAL);
-        heroText.setPadding(dp(14), 0, 0, 0);
-        heroText.addView(label("Pagalbininkas paruoštas", 17, true, WHITE));
-        TextView disclaimer = label("Tai nėra viso telefono antivirusinė patikra.", 12, false, 0xffc2d3df);
-        heroText.addView(disclaimer);
-        hero.addView(heroText, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
-        LinearLayout.LayoutParams heroLp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        heroLp.topMargin = dp(20);
-        page.addView(hero, heroLp);
+    private void buildTopBar(LinearLayout page) {
+        LinearLayout row = new LinearLayout(this);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        TextView logo = label("S", 20, true, BG);
+        logo.setGravity(Gravity.CENTER);
+        logo.setBackground(round(TEAL, 14));
+        row.addView(logo, new LinearLayout.LayoutParams(dp(42), dp(42)));
+        LinearLayout name = new LinearLayout(this);
+        name.setOrientation(LinearLayout.VERTICAL);
+        name.setPadding(dp(10), 0, 0, 0);
+        name.addView(label("SARGON", 17, true, WHITE));
+        name.addView(label("SECURITY", 10, true, TEAL));
+        row.addView(name, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
+        TextView tag = label("ANDROID", 10, true, TEAL);
+        tag.setGravity(Gravity.CENTER);
+        tag.setPadding(dp(11), dp(8), dp(11), dp(8));
+        tag.setBackground(round(0xff113a3d, 20));
+        row.addView(tag);
+        page.addView(row);
+    }
 
-        section(page, "Telefono būklė", "ANDROID SISTEMA");
-        LinearLayout statusCard = card();
-        statusCard.setOrientation(LinearLayout.VERTICAL);
+    private void buildProtectionCard(LinearLayout page) {
+        LinearLayout card = new LinearLayout(this);
+        card.setOrientation(LinearLayout.VERTICAL);
+        card.setPadding(dp(18), dp(18), dp(18), dp(18));
+        card.setBackground(gradient(0xff174e6a, 0xff103047, 20));
+
+        LinearLayout top = new LinearLayout(this);
+        top.setGravity(Gravity.CENTER_VERTICAL);
+        ShieldBadge badge = new ShieldBadge();
+        top.addView(badge, new LinearLayout.LayoutParams(dp(64), dp(72)));
+        LinearLayout copy = new LinearLayout(this);
+        copy.setOrientation(LinearLayout.VERTICAL);
+        copy.setPadding(dp(14), 0, 0, 0);
+        copy.addView(label("Telefono apsauga", 19, true, WHITE));
+        copy.addView(label("Patikrinkite Android saugos įrankius", 12, false, 0xffc6d7e3));
+        top.addView(copy, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
+        card.addView(top);
+
+        TextView pill = label("SARGON – papildomas įrankis", 11, true, TEAL);
+        pill.setPadding(dp(10), dp(7), dp(10), dp(7));
+        pill.setBackground(round(0xff123f49, 18));
+        card.addView(pill, topMargin(dp(14)));
+
+        TextView details = label("Ši programėlė negali nuskenuoti viso telefono. Pagrindinę apsaugą tikrinkite per Android ir Google Play Protect.", 13, false, 0xffd2e0e9);
+        details.setLineSpacing(dp(2), 1f);
+        card.addView(details, topMargin(dp(10)));
+
+        TextView action = button("ATVERTI SAUGOS NUSTATYMUS", TEAL, BG, v -> openSecuritySettings());
+        card.addView(action, topMargin(dp(15)));
+        page.addView(card, topMargin(dp(20)));
+    }
+
+    private void buildDeviceStatus(LinearLayout page) {
+        section(page, "Įrenginio būklė", "SISTEMOS DUOMENYS");
+        LinearLayout grid = new LinearLayout(this);
+        grid.setOrientation(LinearLayout.HORIZONTAL);
+
         KeyguardManager keyguard = (KeyguardManager) getSystemService(KEYGUARD_SERVICE);
         boolean secure = keyguard != null && keyguard.isDeviceSecure();
         String patch = Build.VERSION.SECURITY_PATCH == null || Build.VERSION.SECURITY_PATCH.isEmpty()
                 ? "Nenurodyta" : Build.VERSION.SECURITY_PATCH;
-        addInfoRow(statusCard, "Android versija", Build.VERSION.RELEASE + "  •  API " + Build.VERSION.SDK_INT, TEAL);
-        addDivider(statusCard);
-        addInfoRow(statusCard, "Saugos pataisos data", patch, WHITE);
-        addDivider(statusCard);
-        addInfoRow(statusCard, "Ekrano užraktas", secure ? "Įjungtas" : "Neįjungtas",
-                secure ? TEAL : 0xffffbd66);
-        page.addView(statusCard);
 
-        LinearLayout playCard = card();
-        playCard.setOrientation(LinearLayout.VERTICAL);
-        TextView playTitle = label("Google Play Protect", 17, true, WHITE);
-        playCard.addView(playTitle);
-        TextView playDesc = label("SARGON negali nuskaityti „Play Protect“ būsenos. Patikrinkite ją „Google Play“ programoje.", 13, false, MUTED);
-        playDesc.setPadding(0, dp(5), 0, dp(8));
-        playCard.addView(playDesc);
-        page.addView(playCard, topMargin(dp(12)));
-        page.addView(actionButton("Atverti Android saugos nustatymus", BLUE, v -> openSecuritySettings()), topMargin(dp(10)));
+        LinearLayout lock = miniCard("EKRANO UŽRAKTAS", secure ? "Įjungtas" : "Neįjungtas", secure ? TEAL : 0xffffbd66, "01");
+        LinearLayout.LayoutParams half = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1);
+        half.rightMargin = dp(6);
+        grid.addView(lock, half);
 
+        LinearLayout update = miniCard("SAUGOS PATAISA", patch, WHITE, "02");
+        LinearLayout.LayoutParams half2 = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1);
+        half2.leftMargin = dp(6);
+        grid.addView(update, half2);
+        page.addView(grid);
+        TextView android = label("Android " + Build.VERSION.RELEASE + "  •  API " + Build.VERSION.SDK_INT, 12, false, MUTED);
+        android.setPadding(dp(3), dp(9), 0, 0);
+        page.addView(android);
+    }
+
+    private void buildFileTools(LinearLayout page) {
         section(page, "Failo kontrolė", "SHA-256");
-        LinearLayout fileCard = card();
-        fileCard.setOrientation(LinearLayout.VERTICAL);
-        fileCard.addView(label("Pasirinkite vieną failą ir apskaičiuokite jo kontrolinį kodą.", 13, false, MUTED));
+        LinearLayout card = new LinearLayout(this);
+        card.setOrientation(LinearLayout.VERTICAL);
+        card.setPadding(dp(16), dp(16), dp(16), dp(16));
+        card.setBackground(round(CARD, 17));
+
+        LinearLayout top = new LinearLayout(this);
+        top.setGravity(Gravity.CENTER_VERTICAL);
+        TextView icon = label("#", 22, true, TEAL);
+        icon.setGravity(Gravity.CENTER);
+        icon.setBackground(round(CARD2, 13));
+        top.addView(icon, new LinearLayout.LayoutParams(dp(44), dp(44)));
+        LinearLayout copy = new LinearLayout(this);
+        copy.setOrientation(LinearLayout.VERTICAL);
+        copy.setPadding(dp(12), 0, 0, 0);
+        copy.addView(label("Failo kontrolinis kodas", 16, true, WHITE));
+        copy.addView(label("Pasirinkite failą iš telefono", 12, false, MUTED));
+        top.addView(copy, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
+        card.addView(top);
+
         expectedHash = new EditText(this);
         expectedHash.setSingleLine(true);
         expectedHash.setHint("Palyginimo kodas (nebūtina)");
         expectedHash.setTextSize(13);
         expectedHash.setInputType(android.text.InputType.TYPE_CLASS_TEXT | android.text.InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
         expectedHash.setTextColor(WHITE);
-        expectedHash.setHintTextColor(0xff94a7b9);
+        expectedHash.setHintTextColor(0xff92a5b8);
         expectedHash.setPadding(dp(12), 0, dp(12), 0);
-        expectedHash.setBackground(round(CARD_LIGHT, 10));
-        LinearLayout.LayoutParams inputLp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(50));
-        inputLp.topMargin = dp(12);
-        fileCard.addView(expectedHash, inputLp);
-        result = label("Pasirinktas failas ir jo SHA-256 kodas bus rodomi čia.", 12, false, 0xffd5e1ea);
+        expectedHash.setBackground(round(CARD2, 11));
+        card.addView(expectedHash, topMargin(dp(14)));
+
+        result = label("Pasirinkus failą, čia bus parodytas SHA-256 kodas.", 12, false, 0xffd5e1ea);
         result.setTypeface(Typeface.MONOSPACE);
         result.setPadding(dp(12), dp(12), dp(12), dp(12));
-        result.setBackground(round(0xff0b1928, 10));
-        fileCard.addView(result, topMargin(dp(10)));
-        page.addView(fileCard);
-        page.addView(actionButton("Pasirinkti failą", TEAL, v -> chooseFile()), topMargin(dp(10)));
+        result.setBackground(round(0xff091522, 11));
+        card.addView(result, topMargin(dp(10)));
 
-        TextView note = label("Failas lieka telefone. SHA-256 kodas nėra virusų aptikimas; jis padeda tik palyginti failą su patikimo šaltinio kodu.", 12, false, 0xffffc46b);
-        note.setPadding(dp(2), dp(13), dp(2), 0);
+        TextView pick = button("PASIRINKTI FAILĄ", 0xff1c5272, WHITE, v -> chooseFile());
+        card.addView(pick, topMargin(dp(12)));
+        page.addView(card);
+
+        TextView note = label("Kontrolinis kodas nėra virusų aptikimas. Failo turinys lieka telefone; kodą lyginkite tik su patikimo leidėjo pateiktu kodu.", 12, false, 0xffffc46b);
+        note.setLineSpacing(dp(2), 1f);
+        note.setPadding(dp(3), dp(12), dp(3), 0);
         page.addView(note);
+    }
 
-        TextView footer = label("SARGON Android • papildomas saugos įrankis", 11, false, 0xff71869a);
-        footer.setGravity(Gravity.CENTER);
-        footer.setPadding(0, dp(24), 0, 0);
-        page.addView(footer);
-        setContentView(scroll);
+    private LinearLayout miniCard(String title, String value, int valueColor, String index) {
+        LinearLayout card = new LinearLayout(this);
+        card.setOrientation(LinearLayout.VERTICAL);
+        card.setPadding(dp(13), dp(13), dp(13), dp(13));
+        card.setBackground(round(CARD, 15));
+        TextView small = label(index + "  /  " + title, 9, true, MUTED);
+        card.addView(small);
+        TextView data = label(value, 15, true, valueColor);
+        data.setPadding(0, dp(9), 0, 0);
+        card.addView(data);
+        return card;
+    }
+
+    private void section(LinearLayout page, String title, String eyebrow) {
+        LinearLayout row = new LinearLayout(this);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setPadding(0, dp(22), 0, dp(9));
+        TextView heading = label(title, 19, true, WHITE);
+        row.addView(heading, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
+        TextView tag = label(eyebrow, 9, true, TEAL);
+        row.addView(tag);
+        page.addView(row);
+    }
+
+    private TextView button(String text, int background, int foreground, View.OnClickListener click) {
+        TextView view = label(text, 13, true, foreground);
+        view.setGravity(Gravity.CENTER);
+        view.setPadding(dp(14), dp(8), dp(14), dp(8));
+        view.setMinHeight(dp(51));
+        view.setBackground(round(background, 12));
+        view.setOnClickListener(click);
+        return view;
+    }
+
+    private TextView label(String text, int size, boolean bold, int color) {
+        TextView view = new TextView(this);
+        view.setText(text);
+        view.setTextSize(size);
+        view.setTextColor(color);
+        if (bold) view.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
+        return view;
+    }
+
+    private GradientDrawable round(int color, int radius) {
+        GradientDrawable d = new GradientDrawable();
+        d.setColor(color);
+        d.setCornerRadius(dp(radius));
+        return d;
+    }
+
+    private GradientDrawable gradient(int top, int bottom, int radius) {
+        GradientDrawable d = new GradientDrawable(GradientDrawable.Orientation.TL_BR, new int[]{top, bottom});
+        d.setCornerRadius(dp(radius));
+        return d;
+    }
+
+    private LinearLayout.LayoutParams topMargin(int margin) {
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        lp.topMargin = margin;
+        return lp;
     }
 
     private void chooseFile() {
@@ -171,7 +268,7 @@ public final class MainActivity extends Activity {
         Uri uri = data.getData();
         String name = displayName(uri);
         String expected = expectedHash.getText().toString();
-        result.setText("Skaičiuojamas SHA-256…\n" + name);
+        result.setText("SKAIČIUOJAMA…\n" + name);
         worker.execute(() -> {
             String message;
             try {
@@ -180,12 +277,12 @@ public final class MainActivity extends Activity {
                 if (expected.trim().isEmpty()) {
                     message = "FAILAS: " + name + "\n\nSHA-256:\n" + hash + "\n\nTai nėra virusų patikros rezultatas.";
                 } else if (FileFingerprint.matches(expected, hash)) {
-                    message = "FAILAS: " + name + "\n\nSHA-256 SUTAMPA\n" + hash + "\n\nTai nepatvirtina failo saugumo.";
+                    message = "KODAI SUTAMPA\n" + name + "\n\nSHA-256:\n" + hash + "\n\nSutapimas nepatvirtina failo saugumo.";
                 } else {
-                    message = "FAILAS: " + name + "\n\nKODAI NESUTAMPA\n" + hash + "\n\nPatikrinkite kodą patikimame šaltinyje.";
+                    message = "KODAI NESUTAMPA\n" + name + "\n\nSHA-256:\n" + hash + "\n\nPatikrinkite kontrolinį kodą patikimame šaltinyje.";
                 }
             } catch (Exception ex) {
-                message = "Failo kodo apskaičiuoti nepavyko. Failas nebuvo patikrintas.";
+                message = "Failo kontrolinio kodo apskaičiuoti nepavyko. Failas nebuvo patikrintas.";
             }
             final String text = message;
             runOnUiThread(() -> result.setText(text));
@@ -207,80 +304,37 @@ public final class MainActivity extends Activity {
         catch (Exception ex) { startActivity(new Intent(Settings.ACTION_SETTINGS)); }
     }
 
-    private void section(LinearLayout page, String title, String eyebrow) {
-        LinearLayout row = new LinearLayout(this);
-        row.setGravity(Gravity.BOTTOM);
-        row.setPadding(0, dp(23), 0, dp(9));
-        TextView h = label(title, 19, true, WHITE);
-        row.addView(h, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
-        TextView e = label(eyebrow, 9, true, TEAL);
-        e.setGravity(Gravity.CENTER);
-        row.addView(e);
-        page.addView(row);
-    }
-
-    private LinearLayout card() {
-        LinearLayout box = new LinearLayout(this);
-        box.setOrientation(LinearLayout.VERTICAL);
-        box.setPadding(dp(15), dp(14), dp(15), dp(14));
-        box.setBackground(round(CARD, 15));
-        box.setElevation(dp(2));
-        return box;
-    }
-
-    private void addInfoRow(LinearLayout parent, String name, String value, int valueColor) {
-        LinearLayout row = new LinearLayout(this);
-        row.setGravity(Gravity.CENTER_VERTICAL);
-        TextView left = label(name, 13, false, MUTED);
-        TextView right = label(value, 13, true, valueColor);
-        right.setGravity(Gravity.RIGHT | Gravity.CENTER_VERTICAL);
-        row.addView(left, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
-        row.addView(right);
-        parent.addView(row);
-    }
-
-    private void addDivider(LinearLayout parent) {
-        View line = new View(this);
-        line.setBackgroundColor(0xff263b50);
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(1));
-        lp.topMargin = dp(7);
-        lp.bottomMargin = dp(7);
-        parent.addView(line, lp);
-    }
-
-    private TextView label(String text, int size, boolean bold, int color) {
-        TextView view = new TextView(this);
-        view.setText(text);
-        view.setTextSize(size);
-        view.setTextColor(color);
-        if (bold) view.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
-        return view;
-    }
-
-    private TextView actionButton(String text, int color, View.OnClickListener click) {
-        TextView button = label(text, 14, true, BG);
-        button.setGravity(Gravity.CENTER);
-        button.setPadding(dp(14), dp(7), dp(14), dp(7));
-        button.setMinHeight(dp(50));
-        button.setBackground(round(color, 12));
-        button.setOnClickListener(click);
-        return button;
-    }
-
-    private GradientDrawable round(int color, int radius) {
-        GradientDrawable bg = new GradientDrawable();
-        bg.setColor(color);
-        bg.setCornerRadius(dp(radius));
-        return bg;
-    }
-
-    private LinearLayout.LayoutParams topMargin(int margin) {
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        lp.topMargin = margin;
-        return lp;
-    }
-
     private int dp(int value) { return (int) (value * getResources().getDisplayMetrics().density + 0.5f); }
+
+    private final class ShieldBadge extends View {
+        private final android.graphics.Paint paint = new android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG);
+        ShieldBadge() { super(MainActivity.this); }
+        @Override protected void onDraw(android.graphics.Canvas canvas) {
+            super.onDraw(canvas);
+            float w = getWidth(), h = getHeight();
+            paint.setColor(0xff2cc8ad);
+            android.graphics.Path shield = new android.graphics.Path();
+            shield.moveTo(w * .5f, h * .05f);
+            shield.lineTo(w * .91f, h * .20f);
+            shield.lineTo(w * .85f, h * .62f);
+            shield.quadTo(w * .79f, h * .82f, w * .5f, h * .96f);
+            shield.quadTo(w * .21f, h * .82f, w * .15f, h * .62f);
+            shield.lineTo(w * .09f, h * .20f);
+            shield.close();
+            canvas.drawPath(shield, paint);
+            paint.setColor(Color.WHITE);
+            paint.setStrokeWidth(dp(4));
+            paint.setStrokeCap(android.graphics.Paint.Cap.ROUND);
+            paint.setStrokeJoin(android.graphics.Paint.Join.ROUND);
+            paint.setStyle(android.graphics.Paint.Style.STROKE);
+            android.graphics.Path check = new android.graphics.Path();
+            check.moveTo(w * .32f, h * .51f);
+            check.lineTo(w * .45f, h * .64f);
+            check.lineTo(w * .70f, h * .38f);
+            canvas.drawPath(check, paint);
+            paint.setStyle(android.graphics.Paint.Style.FILL);
+        }
+    }
 
     @Override protected void onDestroy() {
         worker.shutdownNow();
