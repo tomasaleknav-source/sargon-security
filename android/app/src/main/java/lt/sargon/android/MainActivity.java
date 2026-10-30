@@ -408,7 +408,7 @@ public final class MainActivity extends Activity {
                 mark.lineTo(w * .5f, h * .56f);
                 canvas.drawPath(mark, paint);
                 paint.setStyle(android.graphics.Paint.Style.FILL);
-                canvas.drawCircle(w * .5f, h * .69f, dp(2.3f), paint);
+                canvas.drawCircle(w * .5f, h * .69f, dp(2), paint);
             } else {
                 mark.moveTo(w * .32f, h * .51f);
                 mark.lineTo(w * .45f, h * .64f);
