@@ -1,4 +1,21 @@
-# SARGON Security 0.49 — Windows bandomasis šaltinis
+# SARGON Security — diegimas Windows ir Android
+
+Diegimo failai pateikti čia, kad juos būtų paprasta parsisiųsti ir įdiegti kituose įrenginiuose.
+
+| Įrenginys | Versija | Diegimo failas |
+|---|---:|---|
+| **Windows kompiuteris** | 0.52 | [⬇️ Atsisiųsti SARGON Windows diegiklį (.exe)](https://github.com/tomasaleknav-source/sargon-security/releases/download/v52/SARGON_Security_PC_Setup.exe) |
+| **Android telefonas** | 0.52.3 | [⬇️ Atsisiųsti SARGON Android paketą (.apk)](https://github.com/tomasaleknav-source/sargon-security/releases/download/v0.52.3-android/SARGON_Android_0.52.3.apk) |
+
+[Peržiūrėti visus SARGON leidimus](https://github.com/tomasaleknav-source/sargon-security/releases)
+
+Norėdami įdiegti kitame įrenginyje, atverkite šį puslapį tame įrenginyje ir pasirinkite atitinkamą failą. Windows sistemoje paleiskite atsisiųstą `.exe`; Android telefone atverkite atsisiųstą `.apk` ir vykdykite telefono nurodymus. Windows gali rodyti SmartScreen perspėjimą, nes diegiklis neturi Authenticode leidėjo sertifikato.
+
+**Svarbu:** Windows versija valdo Microsoft Defender ir naudoja ClamAV kaip papildomą failų patikrą — ji nepakeičia Defender ir nėra pilnavertė antivirusinė. Android versija yra telefono saugos pagalbininkas; ji nepakeičia Google Play Protect ir neskenuoja viso telefono. Palikite Defender ir Play Protect įjungtus.
+
+---
+
+## Ankstesnės 0.49 Windows versijos techninės pastabos
 
 **Tai šaltinio kandidatas, ne paruoštas diegiklis.** Šiame pakete nėra sukompiliuoto 0.49 `.exe`; Windows surinkimas, diegimas ir priėmimo bandymai šiame vykdymo kompiuteryje neatlikti. Nemokamas pagrindinis McAfee antivirusinės pakaitalas yra Windows integruotas Microsoft Defender. Šis SARGON leidimas jį valdo ir tikrina jo būseną; SARGON pats nėra antiviruso variklis. ClamAV yra tik papildoma failų patikra.
 
@@ -36,8 +53,8 @@ Surinkimui reikia Windows x64, .NET Framework 4.8 kūrimo įrankių / suderinamo
 
 Prieš platinimą būtini Windows x64 build ir testų rezultatai, realus paslaugos / UAC / diegiklio priėmimas, failų apimties ir klaidingų perspėjimų matavimai, saugus leidėjo pasirašymas ir nepriklausomas aptikimo efektyvumo įvertinimas. Iki tol SARGON netinka naudoti kaip vienintelė antivirusinė.
 
-## Viešas šaltinio veidrodis ir programos atnaujinimai
+## Vieši leidimai ir automatiniai atnaujinimai
 
-Ši saugykla skirta šaltinio kodui peržiūrėti. Joje nėra sukompiliuoto diegiklio, patikimo leidėjo rakto ar veikiančios automatinio SARGON programos atnaujinimo infrastruktūros. `release_tools/create_update_manifest.py` yra tik bandomasis manifesto pasirašymo įrankis; jis neatnaujina kliento, neįdiegia ir nepaskelbia leidimo. Nenaudokite jo tikram leidimo privačiajam raktui. Automatinio atnaujinimo funkcija bus laikoma neįjungta, kol nebus įdiegta ir Windows aplinkoje patikrinta visa pasirašymo, atsisiuntimo, įdiegimo bei atkūrimo grandinė.
+Windows kompiuterio diegiklis ir Android paketas parsisiunčiami iš šioje saugykloje paskelbtų viešų leidimų. Windows 0.52 leidime automatinio atnaujinimo srautas tikrina pasirašytą aprašą ir SHA-256 prieš siūlydamas diegti naują leidimą. Tai nėra Authenticode leidėjo sertifikatas, todėl Windows vis tiek gali rodyti SmartScreen perspėjimą.
 
-Viešos šaltinio saugyklos paskelbimas savaime nereiškia, kad šis bandomasis antiviruso pagalbininkas tinkamas kaip vienintelė apsauga. Laikykite Microsoft Defender įjungtą.
+SARGON nėra savarankiškas visos sistemos antiviruso variklis. Windows apsaugai palikite aktyvų Microsoft Defender, o Android telefone — Google Play Protect. Diegimo failai ir jų versijų aprašai pateikiami leidimų puslapyje; parsisiųskite tik iš oficialių nuorodų viršuje.
