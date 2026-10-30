@@ -10,8 +10,8 @@ android {
         applicationId 'lt.sargon.android'
         minSdk 26
         targetSdk 35
-        versionCode 5202
-        versionName '0.52.1-android'
+        versionCode 5203
+        versionName '0.52.2-android'
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
 
