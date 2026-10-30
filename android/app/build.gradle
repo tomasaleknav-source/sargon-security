@@ -32,5 +32,7 @@ android {
 }
 
 dependencies {
-    implementation 'com.google.guava:guava:33.4.8-android'\n    implementation 'org.bouncycastle:bcpg-jdk18on:1.80'\n    testImplementation 'junit:junit:4.13.2'
+    implementation 'com.google.guava:guava:33.4.8-android'
+    implementation 'org.bouncycastle:bcpg-jdk18on:1.80'
+    testImplementation 'junit:junit:4.13.2'
 }
