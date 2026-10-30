@@ -15,12 +15,10 @@ import android.provider.OpenableColumns;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-import java.io.InputStream;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -35,7 +33,6 @@ public final class MainActivity extends Activity {
     private final ExecutorService worker = Executors.newSingleThreadExecutor();
     private TextView result;
     private ShieldBadge shieldBadge;
-    private EditText expectedHash;
 
     @Override public void onCreate(Bundle state) {
         super.onCreate(state);
@@ -61,7 +58,7 @@ public final class MainActivity extends Activity {
         buildProtectionCard(page);
         buildDeviceStatus(page);
         buildFileTools(page);
-        TextView footer = label("SARGON Android 0.52.5 PREVIEW  •  Pagalbinė programėlė", 11, false, 0xff71849a);
+        TextView footer = label("SARGON Android 0.53.0 PREVIEW  •  Pasirinkto failo tikrinimas", 11, false, 0xff71849a);
         footer.setGravity(Gravity.CENTER);
         footer.setPadding(0, dp(24), 0, 0);
         page.addView(footer);
@@ -81,7 +78,7 @@ public final class MainActivity extends Activity {
         name.addView(label("SARGON", 17, true, WHITE));
         name.addView(label("SECURITY", 10, true, BLUE));
         row.addView(name, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
-        TextView tag = label("PREVIEW 0.52.5", 10, true, BLUE);
+        TextView tag = label("PREVIEW 0.53.0", 10, true, BLUE);
         tag.setGravity(Gravity.CENTER);
         tag.setPadding(dp(11), dp(8), dp(11), dp(8));
         tag.setBackground(round(0xff123653, 20));
@@ -148,7 +145,7 @@ public final class MainActivity extends Activity {
     }
 
     private void buildFileTools(LinearLayout page) {
-        section(page, "Failo kontrolė", "SHA-256");
+        section(page, "Failų nuskaitymas", "PARAŠŲ BAZĖ");
         LinearLayout card = new LinearLayout(this);
         card.setOrientation(LinearLayout.VERTICAL);
         card.setPadding(dp(16), dp(16), dp(16), dp(16));
@@ -156,40 +153,42 @@ public final class MainActivity extends Activity {
 
         LinearLayout top = new LinearLayout(this);
         top.setGravity(Gravity.CENTER_VERTICAL);
-        TextView icon = label("#", 22, true, BLUE);
+        TextView icon = label("✓", 22, true, BLUE);
         icon.setGravity(Gravity.CENTER);
         icon.setBackground(round(CARD2, 13));
         top.addView(icon, new LinearLayout.LayoutParams(dp(44), dp(44)));
         LinearLayout copy = new LinearLayout(this);
         copy.setOrientation(LinearLayout.VERTICAL);
         copy.setPadding(dp(12), 0, 0, 0);
-        copy.addView(label("Failo kontrolinis kodas", 16, true, WHITE));
-        copy.addView(label("Pasirinkite failą iš telefono", 12, false, MUTED));
+        copy.addView(label("Pasirinkto failo patikra", 16, true, WHITE));
+        copy.addView(label("Vietoje telefone • failas neįkeliamas", 12, false, MUTED));
         top.addView(copy, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
         card.addView(top);
 
-        expectedHash = new EditText(this);
-        expectedHash.setSingleLine(true);
-        expectedHash.setHint("Palyginimo kodas (nebūtina)");
-        expectedHash.setTextSize(13);
-        expectedHash.setInputType(android.text.InputType.TYPE_CLASS_TEXT | android.text.InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-        expectedHash.setTextColor(WHITE);
-        expectedHash.setHintTextColor(0xff92a5b8);
-        expectedHash.setPadding(dp(12), 0, dp(12), 0);
-        expectedHash.setBackground(round(CARD2, 11));
-        card.addView(expectedHash, topMargin(dp(14)));
+        TextView explanation = label(
+                "Tikrinama pagal žinomų kenkėjiškų failų SHA-256 parašų bazę. Tai ne viso telefono nuskaitymas ir ne garantija, kad failas saugus.",
+                12, false, 0xffd2e0e9);
+        explanation.setLineSpacing(dp(2), 1f);
+        card.addView(explanation, topMargin(dp(12)));
 
-        result = label("Pasirinkus failą, čia bus parodytas SHA-256 kodas.", 12, false, 0xffd5e1ea);
+        result = label("Pasirinkite failą, kurį norite patikrinti.", 12, false, 0xffd5e1ea);
         result.setTypeface(Typeface.MONOSPACE);
         result.setPadding(dp(12), dp(12), dp(12), dp(12));
         result.setBackground(round(0xff091522, 11));
-        card.addView(result, topMargin(dp(10)));
+        card.addView(result, topMargin(dp(12)));
 
-        TextView pick = button("PASIRINKTI FAILĄ", 0xff1c5272, WHITE, v -> chooseFile());
+        TextView pick = button("NUSKAITYTI PASIRINKTĄ FAILĄ", 0xff1c5272, WHITE, v -> chooseFile());
         card.addView(pick, topMargin(dp(12)));
+
+        TextView update = button("ATNAUJINTI PARAŠŲ BAZĘ", CARD2, BLUE, v -> updateSignatures());
+        card.addView(update, topMargin(dp(8)));
+
+        TextView source = label("Parašų šaltinis: MaintainTeam HypatiaDatabases. Atnaujinant tikrinamas duomenų bazės GPG parašas.", 11, false, MUTED);
+        source.setLineSpacing(dp(2), 1f);
+        card.addView(source, topMargin(dp(12)));
         page.addView(card);
 
-        TextView note = label("Kontrolinis kodas nėra virusų aptikimas. Failo turinys lieka telefone; kodą lyginkite tik su patikimo leidėjo pateiktu kodu.", 12, false, 0xffffc46b);
+        TextView note = label("Žalia reiškia, kad bazėje nerasta atitikties. Raudona reiškia galimą atitiktį, kurią reikia ištirti; tai dar nėra patvirtinta infekcija.", 12, false, 0xffffc46b);
         note.setLineSpacing(dp(2), 1f);
         note.setPadding(dp(3), dp(12), dp(3), 0);
         page.addView(note);
@@ -270,43 +269,80 @@ public final class MainActivity extends Activity {
         Uri uri = data.getData();
         shieldBadge.setState(ShieldBadge.CHECKING);
         String name = displayName(uri);
-        String expected = expectedHash.getText().toString();
-        result.setTextColor(BLUE);
-        result.setText("SKAIČIUOJAMA…\n" + name);
+        showMessage("TIKRINAMA…\\n" + name, BLUE);
         worker.execute(() -> {
-            String message;
-            int messageColor;
-            int visualState;
             try {
-                InputStream stream = getContentResolver().openInputStream(uri);
-                String hash = FileFingerprint.sha256(stream);
-                if (expected.trim().isEmpty()) {
-                    message = "FAILAS: " + name + "\n\nSHA-256:\n" + hash + "\n\nTai nėra virusų patikros rezultatas.";
-                    messageColor = BLUE;
-                    visualState = ShieldBadge.IDLE;
-                } else if (FileFingerprint.matches(expected, hash)) {
-                    message = "KODAI SUTAMPA\n" + name + "\n\nSHA-256:\n" + hash + "\n\nSutapimas nepatvirtina failo saugumo.";
-                    messageColor = 0xff39d98a;
-                    visualState = ShieldBadge.MATCH;
+                SignatureScanner.ScanResult scan = SignatureScanner.scanSelectedFile(this, uri);
+                String hash = scan.sha256;
+                String text;
+                int color;
+                int state;
+                if (scan.possibleMatch) {
+                    text = "GALIMA GRĖSMĖ — REIKIA PATIKRINTI\\n" + name
+                            + "\\n\\nSHA-256: " + hash
+                            + "\\n\\nParašų bazėje rasta galima atitiktis. Bloom filtro pobūdis reiškia, kad galimas klaidingas sutapimas; tai nėra patvirtinta infekcija.";
+                    color = 0xffff5964;
+                    state = ShieldBadge.MISMATCH;
                 } else {
-                    message = "KODAI NESUTAMPA\n" + name + "\n\nSHA-256:\n" + hash + "\n\nPatikrinkite kontrolinį kodą patikimame šaltinyje.";
-                    messageColor = 0xffff5964;
-                    visualState = ShieldBadge.MISMATCH;
+                    text = "ATITIKMENŲ NERASTA\\n" + name
+                            + "\\n\\nSHA-256: " + hash
+                            + "\\n\\nŠio failo parašo bazėje nerasta. Tai negarantuoja, kad failas saugus.";
+                    color = 0xff39d98a;
+                    state = ShieldBadge.MATCH;
                 }
+                if (scan.usedOldDatabase) {
+                    text += "\\n\\nDĖMESIO: naudota sena parašų bazė. Prisijunkite prie interneto ir ją atnaujinkite.";
+                }
+                final String finalText = text;
+                final int finalColor = color;
+                final int finalState = state;
+                runOnUiThread(() -> {
+                    showMessage(finalText, finalColor);
+                    shieldBadge.setState(finalState);
+                });
             } catch (Exception ex) {
-                message = "Failo kontrolinio kodo apskaičiuoti nepavyko. Failas nebuvo patikrintas.";
-                messageColor = 0xffff5964;
-                visualState = ShieldBadge.MISMATCH;
+                final String error = "NUSKAITYMAS NEATLIKTAS\\n" + name + "\\n\\n"
+                        + safeError(ex) + "\\nFailas nebuvo patvirtintas kaip patikrintas.";
+                runOnUiThread(() -> {
+                    showMessage(error, 0xffffc46b);
+                    shieldBadge.setState(ShieldBadge.IDLE);
+                });
             }
-            final String text = message;
-            final int color = messageColor;
-            final int animationState = visualState;
-            runOnUiThread(() -> {
-                result.setTextColor(color);
-                result.setText(text);
-                shieldBadge.setState(animationState);
-            });
         });
+    }
+
+    private void updateSignatures() {
+        shieldBadge.setState(ShieldBadge.CHECKING);
+        showMessage("ATNAUJINAMA PARAŠŲ BAZĖ…\\nTikrinamas leidėjo GPG parašas.", BLUE);
+        worker.execute(() -> {
+            try {
+                String updated = SignatureScanner.updateDatabase(this);
+                runOnUiThread(() -> {
+                    showMessage("PARAŠŲ BAZĖ ATNAUJINTA\\n" + updated
+                            + "\\n\\nKitas pasirinktas failas bus patikrintas su šia baze.", BLUE);
+                    shieldBadge.setState(ShieldBadge.IDLE);
+                });
+            } catch (Exception ex) {
+                final String error = "BAZĖS ATNAUJINTI NEPAVYKO\\n" + safeError(ex)
+                        + "\\n\\nTikrinimas negali būti laikomas užbaigtu.";
+                runOnUiThread(() -> {
+                    showMessage(error, 0xffffc46b);
+                    shieldBadge.setState(ShieldBadge.IDLE);
+                });
+            }
+        });
+    }
+
+    private void showMessage(String message, int color) {
+        result.setTextColor(color);
+        result.setText(message);
+    }
+
+    private String safeError(Exception ex) {
+        String message = ex.getMessage();
+        return message == null || message.trim().isEmpty()
+                ? "Patikra nepavyko. Patikrinkite interneto ryšį ir bandykite dar kartą."
+                : message;
     }
 
     private String displayName(Uri uri) {
