@@ -210,7 +210,7 @@ public final class SignatureScanner {
             }
             if (!(object instanceof PGPSignatureList)) throw new SecurityException("Nesuprantamas duomenų bazės parašas.");
             PGPSignatureList signatures = (PGPSignatureList) object;
-            if (signatures.isEmpty()) throw new SecurityException("Duomenų bazės parašo sąrašas tuščias.");
+            if (signatures.size() == 0) throw new SecurityException("Duomenų bazės parašo sąrašas tuščias.");
             PGPSignature pgpSignature = signatures.get(0);
             if (pgpSignature.getKeyID() != key.getKeyID()) throw new SecurityException("Duomenų bazės parašą pateikė nepatikimas raktas.");
             pgpSignature.init(new JcaPGPContentVerifierBuilderProvider().setProvider("BC"), key);
