@@ -269,7 +269,7 @@ public final class MainActivity extends Activity {
         Uri uri = data.getData();
         shieldBadge.setState(ShieldBadge.CHECKING);
         String name = displayName(uri);
-        showMessage("TIKRINAMA…\\n" + name, BLUE);
+        showMessage("TIKRINAMA…\n" + name, BLUE);
         worker.execute(() -> {
             try {
                 SignatureScanner.ScanResult scan = SignatureScanner.scanSelectedFile(this, uri);
@@ -278,20 +278,20 @@ public final class MainActivity extends Activity {
                 int color;
                 int state;
                 if (scan.possibleMatch) {
-                    text = "GALIMA GRĖSMĖ — REIKIA PATIKRINTI\\n" + name
-                            + "\\n\\nSHA-256: " + hash
-                            + "\\n\\nParašų bazėje rasta galima atitiktis. Bloom filtro pobūdis reiškia, kad galimas klaidingas sutapimas; tai nėra patvirtinta infekcija.";
+                    text = "GALIMA GRĖSMĖ — REIKIA PATIKRINTI\n" + name
+                            + "\n\nSHA-256: " + hash
+                            + "\n\nParašų bazėje rasta galima atitiktis. Bloom filtro pobūdis reiškia, kad galimas klaidingas sutapimas; tai nėra patvirtinta infekcija.";
                     color = 0xffff5964;
                     state = ShieldBadge.MISMATCH;
                 } else {
-                    text = "ATITIKMENŲ NERASTA\\n" + name
-                            + "\\n\\nSHA-256: " + hash
-                            + "\\n\\nŠio failo parašo bazėje nerasta. Tai negarantuoja, kad failas saugus.";
+                    text = "ATITIKMENŲ NERASTA\n" + name
+                            + "\n\nSHA-256: " + hash
+                            + "\n\nŠio failo parašo bazėje nerasta. Tai negarantuoja, kad failas saugus.";
                     color = 0xff39d98a;
                     state = ShieldBadge.MATCH;
                 }
                 if (scan.usedOldDatabase) {
-                    text += "\\n\\nDĖMESIO: naudota sena parašų bazė. Prisijunkite prie interneto ir ją atnaujinkite.";
+                    text += "\n\nDĖMESIO: naudota sena parašų bazė. Prisijunkite prie interneto ir ją atnaujinkite.";
                 }
                 final String finalText = text;
                 final int finalColor = color;
@@ -301,8 +301,8 @@ public final class MainActivity extends Activity {
                     shieldBadge.setState(finalState);
                 });
             } catch (Exception ex) {
-                final String error = "NUSKAITYMAS NEATLIKTAS\\n" + name + "\\n\\n"
-                        + safeError(ex) + "\\nFailas nebuvo patvirtintas kaip patikrintas.";
+                final String error = "NUSKAITYMAS NEATLIKTAS\n" + name + "\n\n"
+                        + safeError(ex) + "\nFailas nebuvo patvirtintas kaip patikrintas.";
                 runOnUiThread(() -> {
                     showMessage(error, 0xffffc46b);
                     shieldBadge.setState(ShieldBadge.IDLE);
@@ -313,18 +313,18 @@ public final class MainActivity extends Activity {
 
     private void updateSignatures() {
         shieldBadge.setState(ShieldBadge.CHECKING);
-        showMessage("ATNAUJINAMA PARAŠŲ BAZĖ…\\nTikrinamas leidėjo GPG parašas.", BLUE);
+        showMessage("ATNAUJINAMA PARAŠŲ BAZĖ…\nTikrinamas leidėjo GPG parašas.", BLUE);
         worker.execute(() -> {
             try {
                 String updated = SignatureScanner.updateDatabase(this);
                 runOnUiThread(() -> {
-                    showMessage("PARAŠŲ BAZĖ ATNAUJINTA\\n" + updated
-                            + "\\n\\nKitas pasirinktas failas bus patikrintas su šia baze.", BLUE);
+                    showMessage("PARAŠŲ BAZĖ ATNAUJINTA\n" + updated
+                            + "\n\nKitas pasirinktas failas bus patikrintas su šia baze.", BLUE);
                     shieldBadge.setState(ShieldBadge.IDLE);
                 });
             } catch (Exception ex) {
-                final String error = "BAZĖS ATNAUJINTI NEPAVYKO\\n" + safeError(ex)
-                        + "\\n\\nTikrinimas negali būti laikomas užbaigtu.";
+                final String error = "BAZĖS ATNAUJINTI NEPAVYKO\n" + safeError(ex)
+                        + "\n\nTikrinimas negali būti laikomas užbaigtu.";
                 runOnUiThread(() -> {
                     showMessage(error, 0xffffc46b);
                     shieldBadge.setState(ShieldBadge.IDLE);
