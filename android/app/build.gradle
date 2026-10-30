@@ -21,6 +21,12 @@ android {
     }
     testOptions { unitTests.returnDefaultValues = true }
 
+    packaging {
+        resources {
+            excludes += ['META-INF/versions/9/OSGI-INF/MANIFEST.MF']
+        }
+    }
+
     // The CI APK is a side-by-side preview; it must not overwrite the public install.
     buildTypes {
         debug {
