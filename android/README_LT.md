@@ -1,4 +1,4 @@
-# SARGON Android 0.52-android — bandomasis leidimas
+# SARGON Android 0.52.4-android — bandomasis leidimas
 
 Tai atskiras Android pagalbininkas, ne Windows SARGON perkėlimas ir ne antivirusinė programa.
 
@@ -6,7 +6,8 @@ Tai atskiras Android pagalbininkas, ne Windows SARGON perkėlimas ir ne antiviru
 
 - Parodo Android versiją, sistemos saugos naujinimo datą ir ar įjungtas ekrano užraktas.
 - Atveria telefono saugos nustatymus, kad naudotojas galėtų pats patikrinti Google Play Protect.
-- Naudotojui pasirinkus failą, apskaičiuoja SHA-256 kodą ir gali palyginti jį su naudotojo įvestu patikimu kodu.
+- Naudotojui pasirinkus failą, ekrane animuojamas mėlynas skydas, kol skaičiuojamas SHA-256 kodas. Žalias ženklas rodo tik kontrolinių kodų sutapimą, raudonas — neatitikimą; tai nėra virusų aptikimas.
+- Apskaičiuoja SHA-256 kodą ir gali palyginti jį su naudotojo įvestu patikimu kodu.
 - Failo turinys nesiunčiamas į tinklą. Programėlė neprašo interneto ar plačios prieigos prie telefono failų.
 
 ## Ko nedaro
