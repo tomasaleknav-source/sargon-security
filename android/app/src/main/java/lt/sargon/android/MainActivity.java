@@ -29,7 +29,7 @@ public final class MainActivity extends Activity {
     private static final int BG = 0xff07111f;
     private static final int CARD = 0xff101f32;
     private static final int CARD2 = 0xff142942;
-    private static final int TEAL = 0xff59e3c3;
+    private static final int BLUE = 0xff55b7ff;
     private static final int WHITE = 0xfff5f8fc;
     private static final int MUTED = 0xffaab9c9;
     private final ExecutorService worker = Executors.newSingleThreadExecutor();
@@ -72,18 +72,18 @@ public final class MainActivity extends Activity {
         row.setGravity(Gravity.CENTER_VERTICAL);
         TextView logo = label("S", 20, true, BG);
         logo.setGravity(Gravity.CENTER);
-        logo.setBackground(round(TEAL, 14));
+        logo.setBackground(round(BLUE, 14));
         row.addView(logo, new LinearLayout.LayoutParams(dp(42), dp(42)));
         LinearLayout name = new LinearLayout(this);
         name.setOrientation(LinearLayout.VERTICAL);
         name.setPadding(dp(10), 0, 0, 0);
         name.addView(label("SARGON", 17, true, WHITE));
-        name.addView(label("SECURITY", 10, true, TEAL));
+        name.addView(label("SECURITY", 10, true, BLUE));
         row.addView(name, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
-        TextView tag = label("ANDROID", 10, true, TEAL);
+        TextView tag = label("ANDROID", 10, true, BLUE);
         tag.setGravity(Gravity.CENTER);
         tag.setPadding(dp(11), dp(8), dp(11), dp(8));
-        tag.setBackground(round(0xff113a3d, 20));
+        tag.setBackground(round(0xff123653, 20));
         row.addView(tag);
         page.addView(row);
     }
@@ -92,7 +92,7 @@ public final class MainActivity extends Activity {
         LinearLayout card = new LinearLayout(this);
         card.setOrientation(LinearLayout.VERTICAL);
         card.setPadding(dp(18), dp(18), dp(18), dp(18));
-        card.setBackground(gradient(0xff174e6a, 0xff103047, 20));
+        card.setBackground(gradient(0xff1b65a0, 0xff102b49, 20));
 
         LinearLayout top = new LinearLayout(this);
         top.setGravity(Gravity.CENTER_VERTICAL);
@@ -106,16 +106,16 @@ public final class MainActivity extends Activity {
         top.addView(copy, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
         card.addView(top);
 
-        TextView pill = label("SARGON – papildomas įrankis", 11, true, TEAL);
+        TextView pill = label("BŪSENA NEPATVIRTINTA", 11, true, 0xffffca74);
         pill.setPadding(dp(10), dp(7), dp(10), dp(7));
-        pill.setBackground(round(0xff123f49, 18));
+        pill.setBackground(round(0xff3a3020, 18));
         card.addView(pill, topMargin(dp(14)));
 
         TextView details = label("Ši programėlė negali nuskenuoti viso telefono. Pagrindinę apsaugą tikrinkite per Android ir Google Play Protect.", 13, false, 0xffd2e0e9);
         details.setLineSpacing(dp(2), 1f);
         card.addView(details, topMargin(dp(10)));
 
-        TextView action = button("ATVERTI SAUGOS NUSTATYMUS", TEAL, BG, v -> openSecuritySettings());
+        TextView action = button("ATVERTI SAUGOS NUSTATYMUS", BLUE, BG, v -> openSecuritySettings());
         card.addView(action, topMargin(dp(15)));
         page.addView(card, topMargin(dp(20)));
     }
@@ -130,7 +130,7 @@ public final class MainActivity extends Activity {
         String patch = Build.VERSION.SECURITY_PATCH == null || Build.VERSION.SECURITY_PATCH.isEmpty()
                 ? "Nenurodyta" : Build.VERSION.SECURITY_PATCH;
 
-        LinearLayout lock = miniCard("EKRANO UŽRAKTAS", secure ? "Įjungtas" : "Neįjungtas", secure ? TEAL : 0xffffbd66, "01");
+        LinearLayout lock = miniCard("EKRANO UŽRAKTAS", secure ? "Įjungtas" : "Neįjungtas", secure ? 0xff39d98a : 0xffff5964, "01");
         LinearLayout.LayoutParams half = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1);
         half.rightMargin = dp(6);
         grid.addView(lock, half);
@@ -154,7 +154,7 @@ public final class MainActivity extends Activity {
 
         LinearLayout top = new LinearLayout(this);
         top.setGravity(Gravity.CENTER_VERTICAL);
-        TextView icon = label("#", 22, true, TEAL);
+        TextView icon = label("#", 22, true, BLUE);
         icon.setGravity(Gravity.CENTER);
         icon.setBackground(round(CARD2, 13));
         top.addView(icon, new LinearLayout.LayoutParams(dp(44), dp(44)));
@@ -212,7 +212,7 @@ public final class MainActivity extends Activity {
         row.setPadding(0, dp(22), 0, dp(9));
         TextView heading = label(title, 19, true, WHITE);
         row.addView(heading, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
-        TextView tag = label(eyebrow, 9, true, TEAL);
+        TextView tag = label(eyebrow, 9, true, BLUE);
         row.addView(tag);
         page.addView(row);
     }
@@ -268,24 +268,31 @@ public final class MainActivity extends Activity {
         Uri uri = data.getData();
         String name = displayName(uri);
         String expected = expectedHash.getText().toString();
+        result.setTextColor(BLUE);
         result.setText("SKAIČIUOJAMA…\n" + name);
         worker.execute(() -> {
             String message;
+            int messageColor;
             try {
                 InputStream stream = getContentResolver().openInputStream(uri);
                 String hash = FileFingerprint.sha256(stream);
                 if (expected.trim().isEmpty()) {
                     message = "FAILAS: " + name + "\n\nSHA-256:\n" + hash + "\n\nTai nėra virusų patikros rezultatas.";
+                    messageColor = BLUE;
                 } else if (FileFingerprint.matches(expected, hash)) {
                     message = "KODAI SUTAMPA\n" + name + "\n\nSHA-256:\n" + hash + "\n\nSutapimas nepatvirtina failo saugumo.";
+                    messageColor = 0xff39d98a;
                 } else {
                     message = "KODAI NESUTAMPA\n" + name + "\n\nSHA-256:\n" + hash + "\n\nPatikrinkite kontrolinį kodą patikimame šaltinyje.";
+                    messageColor = 0xffff5964;
                 }
             } catch (Exception ex) {
                 message = "Failo kontrolinio kodo apskaičiuoti nepavyko. Failas nebuvo patikrintas.";
+                messageColor = 0xffff5964;
             }
             final String text = message;
-            runOnUiThread(() -> result.setText(text));
+            final int color = messageColor;
+            runOnUiThread(() -> { result.setTextColor(color); result.setText(text); });
         });
     }
 
@@ -312,7 +319,7 @@ public final class MainActivity extends Activity {
         @Override protected void onDraw(android.graphics.Canvas canvas) {
             super.onDraw(canvas);
             float w = getWidth(), h = getHeight();
-            paint.setColor(0xff2cc8ad);
+            paint.setColor(0xff55b7ff);
             android.graphics.Path shield = new android.graphics.Path();
             shield.moveTo(w * .5f, h * .05f);
             shield.lineTo(w * .91f, h * .20f);
