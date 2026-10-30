@@ -20,6 +20,14 @@ android {
         targetCompatibility JavaVersion.VERSION_17
     }
     testOptions { unitTests.returnDefaultValues = true }
+
+    // The CI APK is a side-by-side preview; it must not overwrite the public install.
+    buildTypes {
+        debug {
+            applicationIdSuffix '.preview'
+            versionNameSuffix '-preview'
+        }
+    }
 }
 
 dependencies {
