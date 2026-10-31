@@ -1,4 +1,4 @@
-# SARGON Security Linux 0.1.0 Preview
+# SARGON Security Linux 0.2.0 Preview
 
 Lietuviška darbalaukio sąsaja, kuri naudoja vietoje įdiegtą ClamAV failų ir pasirinktų aplankų patikrai.
 
@@ -16,12 +16,14 @@ Jei `install.sh` nepaleidžiamas, terminale įvykdykite `chmod +x install.sh`, t
 
 - patikrina naudotojo pasirinktą failą arba aplanką su ClamAV;
 - leidžia parsisiųsti oficialias ClamAV parašų duomenų bazes per `freshclam`;
+- leidžia įjungti distribucijos pateikiamą `freshclam` automatinio atnaujinimo tarnybą, jei ji įdiegta;
+- leidžia aiškiai patvirtinus perkelti aptiktus failus į naudotojo karantiną ir atkurti paskutinį perkeltą failą;
 - pateikia aiškų rezultatą ir vietinį patikros žurnalą;
 - rodo, ar aptiktas ClamAV on-access procesas.
 
 ## Ribos
 
-Tai dar nėra pilna antivirusinė programa. Šis leidimas neatlieka viso disko patikros fone, pats nekarantinuoja failų ir negarantuoja, kad švariu pažymėtas failas yra saugus. Aptiktą įtartiną failą automatiškai trinti nebandykite; rezultatą patikrinkite atskirai.
+Tai dar nėra pilna antivirusinė programa. Šis leidimas neatlieka viso disko patikros fone ir automatiškai neblokuoja failų paleidimo. Karantinas perkelia aptiktą failą ir neištrina jo; atkūrimas galimas per programą, bet aptiktą failą atkurkite tik jei patikrinote jį atskirai.
 
 Realaus laiko patikrą ClamAV Linux sistemoje gali teikti `clamd` kartu su `clamonacc`, naudojančiu kernelio `fanotify`. Jų konfigūracija priklauso nuo distribucijos ir stebimų kelių. Šiame leidime ji automatiškai neįjungiama, nes neteisingai parinktas visos sistemos stebėjimas gali sutrikdyti darbą. Žr. oficialų [ClamAV On-Access vadovą](https://docs.clamav.net/manual/OnAccess.html).
 
