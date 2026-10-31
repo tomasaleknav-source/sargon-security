@@ -10,8 +10,8 @@ android {
         applicationId 'lt.sargon.android'
         minSdk 26
         targetSdk 35
-        versionCode 5301
-        versionName '0.53.1-android'
+        versionCode 5302
+        versionName '0.53.2-android'
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
 
@@ -30,9 +30,9 @@ android {
     // The CI APK is a side-by-side preview; it must not overwrite the public install.
     buildTypes {
         debug {
-            applicationIdSuffix '.preview531'
+            applicationIdSuffix '.preview532'
             versionNameSuffix '-preview'
-            manifestPlaceholders = [appLabel: 'SARGON Security Preview 0.53.1']
+            manifestPlaceholders = [appLabel: 'SARGON Security Preview 0.53.2']
         }
     }
 }
