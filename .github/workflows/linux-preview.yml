@@ -1,0 +1,37 @@
+name: Linux preview package
+
+on:
+  push:
+    paths:
+      - 'linux/**'
+      - '.github/workflows/linux-preview.yml'
+  pull_request:
+    paths:
+      - 'linux/**'
+      - '.github/workflows/linux-preview.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Python and shell scripts
+        run: |
+          python3 -m py_compile linux/sargon.py linux/scanner.py
+          python3 -m unittest discover -s linux -p 'test_*.py'
+          bash -n linux/install.sh linux/run.sh
+      - name: Package Linux preview
+        run: |
+          mkdir -p dist
+          cd linux
+          zip -r ../dist/SARGON-Linux-0.1.0-preview.zip .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SARGON-Linux-0.1.0-preview
+          path: dist/SARGON-Linux-0.1.0-preview.zip
+          if-no-files-found: error
+          retention-days: 14
