@@ -58,7 +58,7 @@ public final class MainActivity extends Activity {
         buildProtectionCard(page);
         buildDeviceStatus(page);
         buildFileTools(page);
-        TextView footer = label("SARGON Android 0.53.0 PREVIEW  •  Pasirinkto failo tikrinimas", 11, false, 0xff71849a);
+        TextView footer = label("SARGON Android 0.53.2 PREVIEW  •  Pasirinkto failo tikrinimas", 11, false, 0xff71849a);
         footer.setGravity(Gravity.CENTER);
         footer.setPadding(0, dp(24), 0, 0);
         page.addView(footer);
@@ -78,7 +78,7 @@ public final class MainActivity extends Activity {
         name.addView(label("SARGON", 17, true, WHITE));
         name.addView(label("SECURITY", 10, true, BLUE));
         row.addView(name, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
-        TextView tag = label("PREVIEW 0.53.0", 10, true, BLUE);
+        TextView tag = label("PREVIEW 0.53.2", 10, true, BLUE);
         tag.setGravity(Gravity.CENTER);
         tag.setPadding(dp(11), dp(8), dp(11), dp(8));
         tag.setBackground(round(0xff123653, 20));
@@ -101,7 +101,7 @@ public final class MainActivity extends Activity {
         copy.setOrientation(LinearLayout.VERTICAL);
         copy.setPadding(dp(14), 0, 0, 0);
         copy.addView(label("Telefono apsauga", 19, true, WHITE));
-        copy.addView(label("Nuskaitykite telefone pasirinktą failą", 12, false, 0xffc6d7e3));
+        copy.addView(label("Patikrinkite Android saugos įrankius", 12, false, 0xffc6d7e3));
         top.addView(copy, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
         card.addView(top);
 
@@ -110,11 +110,11 @@ public final class MainActivity extends Activity {
         pill.setBackground(round(0xff3a3020, 18));
         card.addView(pill, topMargin(dp(14)));
 
-        TextView details = label("SARGON patikrina jūsų pasirinktą failą pagal parašų bazę. Failas lieka telefone; tai nėra viso telefono nuskaitymas.", 13, false, 0xffd2e0e9);
+        TextView details = label("Ši programėlė negali nuskenuoti viso telefono. Pagrindinę apsaugą tikrinkite per Android ir Google Play Protect.", 13, false, 0xffd2e0e9);
         details.setLineSpacing(dp(2), 1f);
         card.addView(details, topMargin(dp(10)));
 
-        TextView action = button("NUSKAITYTI PASIRINKTĄ FAILĄ", BLUE, BG, v -> chooseFile());
+        TextView action = button("ATVERTI SAUGOS NUSTATYMUS", BLUE, BG, v -> openSecuritySettings());
         card.addView(action, topMargin(dp(15)));
         page.addView(card, topMargin(dp(20)));
     }
